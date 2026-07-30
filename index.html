@@ -3,166 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Para mi esposa 💜</title>
-</head>
-<style>
+<title>Nuestro Universo 💜</title>
 
+<style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
 
-body{
-    margin:0;
-    overflow:hidden;
-    background:radial-gradient(circle at center,#3b0066,#120022,#000);
-    width:100vw;
-    height:100vh;
-    font-family:Georgia,serif;
-}  
-    canvas{
-    position:fixed;
-    top:0;
-    left:0;
+html,body{
     width:100%;
     height:100%;
+    overflow:hidden;
 }
-.texto
-    animation: aparecer 3s ease;
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    text-align:center;
+
+body{
+    font-family:Georgia,serif;
+    background:radial-gradient(circle at center,#4b0082 0%,#1b0035 45%,#05010f 100%);
     color:white;
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+#contenido{
+    position:absolute;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     z-index:10;
 }
 
-.texto h1{
-    font-size:60px;
-    color:#d78cff;
-    text-shadow:0 0 10px #b84dff, 0 0 30px #b84dff;
+.tarjeta{
+    width:min(90%,800px);
+    padding:40px;
+    text-align:center;
+    border-radius:30px;
+    background:rgba(90,0,140,.18);
+    border:1px solid rgba(255,255,255,.15);
+    backdrop-filter:blur(12px);
+    box-shadow:0 0 40px rgba(180,0,255,.35);
+    animation:aparecer 2.5s ease;
+}
+
+h1{
+    font-size:58px;
+    color:#f0d8ff;
+    text-shadow:0 0 20px #cf6cff;
     margin-bottom:20px;
 }
 
-.texto p{
-    font-size:24px;
-    color:#f3d9ff;
-    margin:10px 0;
+p{
+    font-size:23px;
+    line-height:1.8;
+    color:#f8f2ff;
 }
-    @keyframes aparecer{
+
+#frase{
+    margin-top:25px;
+    color:#f2b8ff;
+    font-style:italic;
+}
+
+#boton{
+    display:inline-block;
+    margin-top:35px;
+    padding:14px 28px;
+    border-radius:40px;
+    text-decoration:none;
+    background:#8b2cff;
+    color:white;
+    font-size:20px;
+    transition:.3s;
+}
+
+#boton:hover{
+    transform:scale(1.08);
+}
+
+@keyframes aparecer{
     from{
         opacity:0;
-        transform:translate(-50%,-40%);
+        transform:translateY(35px);
     }
-
     to{
         opacity:1;
-        transform:translate(-50%,-50%);
-    }
-}#corazones{
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    overflow:hidden;
-}
-
-.corazon{
-    position:absolute;
-    color:#b84dff;
-    font-size:24px;
-    text-shadow:0 0 10px #d78cff;
-    animation:flotar 8s linear infinite;
-}
-
-@keyframes flotar{
-    0%{
-        transform:translateY(100vh);
-        opacity:0;
-    }
-
-    20%{
-        opacity:1;
-    }
-
-    100%{
-        transform:translateY(-20vh);
-        opacity:0;
+        transform:translateY(0);
     }
 }
-    const contenedor = document.getElementById("corazones");
+    #carta{
+    margin-top:20px;
+    padding:12px 28px;
+    border:none;
+    border-radius:30px;
+    background:#a54cff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    transition:.3s;
+}
 
-for(let i=0;i<30;i++){
+#carta:hover{
+    transform:scale(1.05);
+}
 
-    const corazon = document.createElement("div");
-
-    corazon.className = "corazon";
-
-    corazon.innerHTML = "💜";
-
-    corazon.style.left = Math.random()*100 + "%";
-
-    corazon.style.animationDuration = (6 + Math.random()*8) + "s";
-
-    corazon.style.animationDelay = (Math.random()*8) + "s";
-
-    corazon.style.fontSize = (18 + Math.random()*24) + "px";
-
-    contenedor.appendChild(corazon);
-
+#mensajeOculto{
+    display:none;
+    margin-top:25px;
+    padding:20px;
+    border-radius:20px;
+    background:rgba(255,255,255,.08);
+    line-height:1.8;
 }
 </style>
 
-}
+</head>
 <body>
-  <canvas id="galaxia"></canvas>
-    <div id="corazones"></div>
-    <div class="texto">
-    <h1>💜 Eres mi esposa 💜</h1>
-    <p>Saory, quédate conmigo para siempre.</p>
-    <p>Eres mi universo, mi paz y la razón por la que mi corazón sonríe. ✨</p>
-</div>
-  <script>
 
-const canvas = document.getElementById("galaxia");
-const ctx = canvas.getContext("2d");
+<canvas id="espacio"></canvas>
+
+<div id="contenido">
+    <div class="tarjeta">
+
+        <h1>💜 Eres mi esposa 💜</h1>
+
+        <p>
+        Quiero que te quedes conmigo.<br><br>
+
+        Entre millones de estrellas,
+        el universo me regaló la más hermosa... tú.<br><br>
+
+        No importa cuántos mundos existan,
+        mi hogar siempre será a tu lado.
+        </p>
+
+        <p id="frase">
+        "Y si existieran mil universos...
+        en los mil volvería a elegirte."
+        </p>
+
+        <a id="boton"
+        target="_blank"
+        href="https://www.youtube.com/results?search_query=California+Dreamin+The+Mamas+and+The+Papas">
+        🎵 Nuestra canción
+        </a>
+        <button id="carta">💌 Lee mi carta</button>
+
+<div id="mensajeOculto">
+<p>
+
+Mi querida Saory,
+
+Gracias por llegar a mi vida.
+
+Quiero que te quedes conmigo,
+porque contigo encontré mi lugar favorito en el universo.
+
+No sé qué nos depare el futuro,
+pero sí sé que quiero vivirlo a tu lado.
+
+Te amo infinitamente. 💜
+
+</p>
+</div>
+
+    </div>
+</div>
+
+<script>
+
+const canvas=document.getElementById("espacio");
+const ctx=canvas.getContext("2d");
 
 function ajustar(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
 }
 
 ajustar();
-window.addEventListener("resize", ajustar);
-    const estrellas = [];
 
-for(let i = 0; i < 300; i++){
+window.addEventListener("resize",ajustar);
+
+const estrellas=[];
+
+for(let i=0;i<450;i++){
+
     estrellas.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 0.5
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2,
+        v:0.15+Math.random()*0.5
     });
-}
 
-function dibujar(){
+}
+    function dibujar(){
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = "white";
+    // Nebulosa
+    const g=ctx.createRadialGradient(
+        canvas.width/2,
+        canvas.height/2,
+        50,
+        canvas.width/2,
+        canvas.height/2,
+        canvas.width/2
+    );
 
-    estrellas.forEach(e => {
+    g.addColorStop(0,"rgba(180,70,255,.25)");
+    g.addColorStop(.4,"rgba(120,0,255,.10)");
+    g.addColorStop(1,"rgba(0,0,0,0)");
+
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // Estrellas
+    ctx.fillStyle="white";
+
+    estrellas.forEach(e=>{
+
         ctx.beginPath();
         ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
         ctx.fill();
+
+        e.y+=e.v;
+
+        if(e.y>canvas.height){
+            e.y=0;
+            e.x=Math.random()*canvas.width;
+        }
+
     });
+
+    // Corazones
+    ctx.font="20px serif";
+
+    for(let i=0;i<15;i++){
+
+        let x=(Date.now()/45+i*120)%canvas.width;
+
+        let y=(canvas.height+80)-((Date.now()/18+i*90)%(canvas.height+160));
+
+        ctx.fillStyle="rgba(220,120,255,.75)";
+        ctx.fillText("💜",x,y);
+
+    }
+
+    // Estrella fugaz
+    if(Math.random()<0.01){
+
+        ctx.strokeStyle="rgba(255,255,255,.7)";
+        ctx.lineWidth=2;
+
+        let sx=Math.random()*canvas.width;
+        let sy=Math.random()*200;
+
+        ctx.beginPath();
+        ctx.moveTo(sx,sy);
+        ctx.lineTo(sx+120,sy+70);
+        ctx.stroke();
+    }
 
     requestAnimationFrame(dibujar);
 }
 
 dibujar();
 
-</script>
-  
+document.getElementById("carta").onclick=function(){
+
+    const carta=document.getElementById("mensajeOculto");
+
+    if(carta.style.display==="block"){
+        carta.style.display="none";
+    }else{
+        carta.style.display="block";
+    }
+
+};
+    </script>
+
 </body>
 </html>
