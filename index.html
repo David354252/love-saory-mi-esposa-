@@ -230,7 +230,7 @@ h1{
     margin-bottom:20px;
     animation:brillo 2.5s ease-in-out infinite;
 }
-}
+
 
 p{
     font-size:23px;
@@ -256,13 +256,13 @@ p{
     transition:.3s;
     box-shadow:0 0 20px rgba(184,77,255,.6);
 }
-}
+
 
 #boton:hover{
     transform:scale(1.08);
     box-shadow:0 0 35px rgba(255,255,255,.8);
 }
-}
+
 
 @keyframes aparecer{
     from{
@@ -324,7 +324,7 @@ p{
     100%{
         transform:translateY(0px);
     }
-}
+
     @keyframes brillo{
     0%{
         text-shadow:0 0 10px #cf6cff;
@@ -336,7 +336,7 @@ p{
     100%{
         text-shadow:0 0 10px #cf6cff;
     }
-}
+
         #planeta{
     position:fixed;
     top:40px;
@@ -683,18 +683,17 @@ for(let i=0;i<450;i++){
     }
 
     requestAnimationFrame(dibujar);
-}
 
 dibujar();
 
-document.getElementById("carta").onclick=function(){
+document.getElementById("carta").onclick = function() {
 
-    const carta=document.getElementById("mensajeOculto");
+    const carta = document.getElementById("mensajeOculto");
 
-    if(carta.style.display==="block"){
-        carta.style.display="none";
-    }else{
-        carta.style.display="block";
+    if (carta.style.display === "block") {
+        carta.style.display = "none";
+    } else {
+        carta.style.display = "block";
     }
 
 };
