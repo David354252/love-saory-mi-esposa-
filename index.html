@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para mi esposa 💜</title>
+</head>
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    overflow:hidden;
+    background:radial-gradient(circle at center,#3b0066,#120022,#000);
+    width:100vw;
+    height:100vh;
+    font-family:Georgia,serif;
+}  
+    canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+}
+
+</style>
+
+}
+<body>
+  <canvas id="galaxia"></canvas>
+  <script>
+
+const canvas = document.getElementById("galaxia");
+const ctx = canvas.getContext("2d");
+
+function ajustar(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+ajustar();
+window.addEventListener("resize", ajustar);
+    const estrellas = [];
+
+for(let i = 0; i < 300; i++){
+    estrellas.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 0.5
+    });
+}
+
+function dibujar(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "white";
+
+    estrellas.forEach(e => {
+        ctx.beginPath();
+        ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(dibujar);
+}
+
+dibujar();
+
+</script>
+  
+</body>
+</html>
