@@ -798,9 +798,9 @@ mainConstellation.add(mainStars);
 mainConstellation.add(glowingStars);
 
 constellationGroup.add(mainConstellation);
-     // ===== CENTRAR Y AGRANDAR LA PRIMERA CONSTELACION =====
-mainConstellation.position.set(0, 0, 35);
-mainConstellation.scale.set(1.55, 1.55, 1.55);
+// ===== CENTRAR Y AGRANDAR LA PRIMERA CONSTELACION =====
+mainConstellation.position.set(17, -45, 35);
+mainConstellation.scale.set(1.35, 1.35, 1.35);
 
 // ===== SEGUNDA CONSTELACIÓN GIRATORIA =====
 const rotatingConstellation = new THREE.Group();
@@ -1466,8 +1466,6 @@ let t=0;
 function tick(){
   requestAnimationFrame(tick);
   t+=0.01;
-
-  updateFlowerGif();
 
   // Aquí continúa todo tu código original
   // Flor de particulas: billboard (siempre de frente a la camara) + giro propio
