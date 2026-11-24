@@ -763,7 +763,7 @@ const constellationLines = new THREE.LineSegments(
     new THREE.LineBasicMaterial({
         color: 0xb388ff,
         transparent: true,
-        opacity: 0.65
+        opacity: 0.95
     })
 );
 
@@ -864,14 +864,17 @@ const spiralLine = new THREE.LineSegments(
     })
 );
 
+// ===== ORBITA PRINCIPAL GIGANTE Y CENTRADA =====
 rotatingConstellation.add(spiralStars);
 rotatingConstellation.add(spiralLine);
-rotatingConstellation.position.set(230, 35, -100);
-rotatingConstellation.scale.set(1.2, 1.2, 1.2);
+
+// Centrada sobre el planeta
+rotatingConstellation.position.set(0, 0, 35);
+
+// Mucho más grande
+rotatingConstellation.scale.set(3.8, 3.8, 3.8);
 
 constellationGroup.add(rotatingConstellation);
-
-scene.add(constellationGroup);
      
 // ===== NUEVAS CONSTELACIONES DEL UNIVERSO =====
 const extraConstellations = new THREE.Group();
@@ -889,7 +892,7 @@ function createExtraConstellation(points, connections, position, scale = 1) {
         geometry,
         new THREE.PointsMaterial({
             color: 0xf0ddff,
-            size: 4.5,
+           size: 9,
             transparent: true,
             opacity: 0.95,
             blending: THREE.AdditiveBlending,
