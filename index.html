@@ -50,7 +50,7 @@ canvas#c{
     left:0;
     width:100%;
     height:100%;
-  background: #000 url("assets/flor%20morada2.png") center center / cover no-repeat;
+background: #000 url("assets/portadamorada6.png") center center / cover no-repeat;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -58,6 +58,15 @@ canvas#c{
     z-index:9999;
     cursor:pointer;
     transition:opacity .7s ease,visibility .7s ease;
+}
+     #start-petals{
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: url("assets/ANIMACION90.gif") center center / cover no-repeat;
+    pointer-events: none;
+    z-index: 10000;
 }
      #animated-flowers{
     position:absolute;
@@ -277,6 +286,7 @@ canvas#c{
 </div>
 
 <div id="start-screen">
+     <div id="start-petals"></div>
      <img id="animated-flowers"
      src="assets/floresmoradas3.gif"
      alt="">
@@ -518,11 +528,20 @@ const flowerMaterial = new THREE.SpriteMaterial({
 const galaxyFlowerGroup = new THREE.Group();
 
 const flowerPositions3D = [
-    {x:-75, y:45, z:-65, size:85},
-    {x:75, y:42, z:-70, size:90},
-    {x:-85, y:-45, z:-60, size:80},
-    {x:85, y:-48, z:-68, size:88},
-    {x:0, y:85, z:-80, size:95}
+    // Flores del fondo
+    {x:-85, y:45, z:-100, size:125},
+    {x:85, y:55, z:-110, size:135},
+
+    // Flores de los lados, más cerca
+    {x:-95, y:-25, z:35, size:115},
+    {x:95, y:-35, z:25, size:125},
+
+    // Flor superior
+    {x:0, y:100, z:-45, size:145},
+
+    // Flores delanteras
+    {x:-45, y:-65, z:65, size:110},
+    {x:55, y:65, z:55, size:120}
 ];
 
 flowerPositions3D.forEach(pos => {
@@ -533,7 +552,106 @@ flowerPositions3D.forEach(pos => {
 });
 
 scene.add(galaxyFlowerGroup);
+     // ===== NUEVA FLOR ROSA MORADA =====
+const newFlowerTexture = new THREE.TextureLoader().load(
+    'assets/rosamorada7.png'
+);
 
+const newFlowerMaterial = new THREE.SpriteMaterial({
+    map: newFlowerTexture,
+    transparent: true,
+    opacity: 1,
+    depthWrite: false
+});
+
+const newFlower = new THREE.Sprite(newFlowerMaterial);
+newFlower.position.set(0, -20, 100);
+newFlower.scale.set(145, 145, 1);
+
+galaxyFlowerGroup.add(newFlower);
+// ===== GALAXIA ANDROMEDA MORADA EN 3D =====
+const andromedaGroup = new THREE.Group();
+
+const galaxyParticles = 9000;
+const galaxyGeometry = new THREE.BufferGeometry();
+const galaxyPositions = [];
+const galaxyColors = [];
+
+const galaxyColor = new THREE.Color();
+
+for (let i = 0; i < galaxyParticles; i++) {
+    const radius = Math.random() * 115;
+    const angle = radius * 0.075 + Math.random() * Math.PI * 2;
+
+    const spiral = angle + radius * 0.045;
+    const spread = 5 + radius * 0.12;
+
+    const x = Math.cos(spiral) * radius +
+              (Math.random() - 0.5) * spread;
+    const y = (Math.random() - 0.5) * spread * 0.55;
+    const z = Math.sin(spiral) * radius +
+              (Math.random() - 0.5) * spread;
+
+    galaxyPositions.push(x, y, z);
+
+    const shade = Math.random();
+    galaxyColor.setHSL(
+        0.72 + shade * 0.06,
+        0.85,
+        0.48 + shade * 0.35
+    );
+
+    galaxyColors.push(
+        galaxyColor.r,
+        galaxyColor.g,
+        galaxyColor.b
+    );
+}
+
+galaxyGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(galaxyPositions, 3)
+);
+
+galaxyGeometry.setAttribute(
+    'color',
+    new THREE.Float32BufferAttribute(galaxyColors, 3)
+);
+
+const galaxyMaterial = new THREE.PointsMaterial({
+    size: 1.5,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+
+const andromeda = new THREE.Points(
+    galaxyGeometry,
+    galaxyMaterial
+);
+
+andromedaGroup.add(andromeda);
+
+// Centro brillante
+const galaxyCore = new THREE.Mesh(
+    new THREE.SphereGeometry(9, 32, 32),
+    new THREE.MeshBasicMaterial({
+        color: 0xd9a6ff,
+        transparent: true,
+        opacity: 0.75
+    })
+);
+
+andromedaGroup.add(galaxyCore);
+
+// Posición y orientación en el espacio
+andromedaGroup.position.set(0, 0, -145);
+andromedaGroup.rotation.x = 0.35;
+andromedaGroup.scale.set(1.25, 0.65, 1.25);
+
+scene.add(andromedaGroup);
 // El título ahora vive en la cabecera fija (#main-title, ver DEDICA:CONFIG
 // mas arriba) en vez de un sprite 3D en el centro - mas legible y
 // consistente con el resto del catalogo.
