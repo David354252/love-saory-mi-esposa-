@@ -502,7 +502,12 @@ renderer.setClearColor(0x000000,0);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
 renderer.setSize(innerWidth,innerHeight);
 const scene=new THREE.Scene();
-=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,5000);
+const camera = new THREE.PerspectiveCamera(
+    60,
+    innerWidth / innerHeight,
+    0.1,
+    5000
+);
 let targetDist=390,currentDist=390,rotX=0.2,rotY=0;
 
 // Fondo: negro solido + el campo de estrellas generado abajo. La textura
