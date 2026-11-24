@@ -54,6 +54,17 @@
     cursor:pointer;
     transition:opacity .7s ease,visibility .7s ease;
 }
+     #animated-flowers{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.85;
+    mix-blend-mode:multiply;
+    pointer-events:none;
+    z-index:1;
+}
 #start-heart,
 #start-flower{
     display:none !important;
@@ -214,6 +225,9 @@
 </div>
 
 <div id="start-screen">
+     <img id="animated-flowers"
+     src="assets/floresmoradas3.gif"
+     alt="">
   <img id="start-heart" aria-hidden="true" alt="">
  <img id="start-flower" src="assets/flor%20morada.png" alt="Flor morada">
   <div id="start-text">Toca para iniciar</div>
