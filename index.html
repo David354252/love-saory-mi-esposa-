@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <!-- DEDICA:META -->
-<title>Galaxia Simple - Para mi esposicita sao </title>
+<title>Galaxia Simple - 𝖒𝖎 𝖊𝖘𝓅𝕠𝖘𝖆 𝓈𝕒𝖔 </title>
 <meta name="description" content="Una galaxia sencilla con anillo morado, una flor de partículas sobre el centro y fotos flotando entre frases del Día de las Flores Moradas.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪻</text></svg>">
 <!-- Preload de la foto de portada, como <link> estatico en el <head> (no por JS,
@@ -1200,82 +1200,42 @@ const ring=new THREE.Mesh(new THREE.RingGeometry(21,58,160),new THREE.MeshBasicM
 ring.rotation.x=Math.PI/2;
 scene.add(ring);
 
-// ── Mejora: flor de partículas moradas flotando sobre el planeta con anillo ──
-// Mismo principio que el holograma de galaxia-placas-dia-novio (rosa de 5
-// pétalos, r = R·|cos(2.5·θ)|, por rechazo dentro del cuadrado envolvente -
-// da una densidad pareja en vez de amontonarse en el centro), pero aquí es
-// una sola forma fija flotando arriba del anillo, no un morph entre dos
-// formas. Billboard: cada frame mira a la cámara, para que la silueta de
-// flor se lea bien gire la cámara hacia donde gire el usuario.
-// Más grande (R 34->74, más del doble) y más detallada: el doble de densidad
-// de partículas del pétalo (900->2400) más una segunda capa de "destellos"
-// finos por encima (sparkleGeo), más chicos y más brillantes, que le dan
-// una textura de brillo extra que una sola capa pareja no lograba.
-const FLOWER_PARTICLES=2400,FLOWER_R=74;
-const flowerPositions=new Float32Array(FLOWER_PARTICLES*3);
-const flowerColors=new Float32Array(FLOWER_PARTICLES*3);
-const flowerCenterColor=new THREE.Color(0xf5e9ff);
-const flowerPetalColorA=new THREE.Color(0xcdaaff);
-const flowerPetalColorB=new THREE.Color(0x8b4df0);
-function rosaXY(R){
-  if(Math.random()<1/9){
-    const a=Math.random()*Math.PI*2,rr=0.34*R*Math.sqrt(Math.random());
-    return [Math.cos(a)*rr,Math.sin(a)*rr,true];
-  }
-  for(let intento=0;intento<40;intento++){
-    const px=(Math.random()*2-1)*R,py=(Math.random()*2-1)*R;
-    const rad=Math.sqrt(px*px+py*py);
-    if(rad<=R*Math.abs(Math.cos(2.5*Math.atan2(py,px)))) return [px,py,false];
-  }
-  return [0,0,true];
-}
-for(let i=0;i<FLOWER_PARTICLES;i++){
-  const [px,py,esCentro]=rosaXY(FLOWER_R);
-  const rad=Math.sqrt(px*px+py*py)/FLOWER_R;
-  // Cuenco: el centro se adelanta y los pétalos se echan atrás (mismo truco
-  // que galaxia-placas-dia-novio), escalado a la nueva R para que la
-  // profundidad relativa de la flor se vea igual de proporcionada.
-  flowerPositions[i*3]=px;flowerPositions[i*3+1]=py;flowerPositions[i*3+2]=(1-rad)*5.5+(Math.random()-0.5)*4;
-  const col=esCentro?flowerCenterColor:flowerPetalColorA.clone().lerp(flowerPetalColorB,Math.min(1,rad));
-  flowerColors[i*3]=col.r;flowerColors[i*3+1]=col.g;flowerColors[i*3+2]=col.b;
-}
-// Capa de destellos: partículas chicas y muy brillantes, mismo contorno de
-// rosa pero a menor radio (viven encima de los pétalos, no se salen de la
-// silueta), blanco puro - es lo que de lejos se lee como "más detallada".
-const SPARKLE_PARTICLES=700;
-const sparklePositions=new Float32Array(SPARKLE_PARTICLES*3);
-for(let i=0;i<SPARKLE_PARTICLES;i++){
-  const [px,py]=rosaXY(FLOWER_R*0.92);
-  sparklePositions[i*3]=px;sparklePositions[i*3+1]=py;sparklePositions[i*3+2]=6+(Math.random()-0.5)*3;
-}
-function makeDotTexture(size=64){
-  const c=document.createElement('canvas');c.width=c.height=size;
-  const g=c.getContext('2d');
-  const grad=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
-  grad.addColorStop(0,'rgba(255,255,255,1)');
-  grad.addColorStop(0.4,'rgba(255,255,255,0.7)');
-  grad.addColorStop(1,'rgba(255,255,255,0)');
-  g.fillStyle=grad;g.fillRect(0,0,size,size);
-  return new THREE.CanvasTexture(c);
-}
-const dotTex=makeDotTexture();
-const flowerGeo=new THREE.BufferGeometry();
-flowerGeo.setAttribute('position',new THREE.BufferAttribute(flowerPositions,3));
-flowerGeo.setAttribute('color',new THREE.BufferAttribute(flowerColors,3));
-const flowerMat=new THREE.PointsMaterial({size:6.4,map:dotTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,vertexColors:true,sizeAttenuation:true});
-const flowerPoints=new THREE.Points(flowerGeo,flowerMat);
-const sparkleGeo=new THREE.BufferGeometry();
-sparkleGeo.setAttribute('position',new THREE.BufferAttribute(sparklePositions,3));
-const sparkleMat=new THREE.PointsMaterial({size:3.2,map:dotTex,color:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true,opacity:0.9});
-const sparklePoints=new THREE.Points(sparkleGeo,sparkleMat);
+// ===== NUEVA FLOR DE LOTO SOBRE EL PLANETA =====
 
-const flowerGroup = new THREE.Group();
-flowerGroup.add(flowerPoints);
-flowerGroup.add(sparklePoints);
-flowerGroup.position.set(0,118,0);
-scene.add(flowerGroup);
+const mainLotusTexture = new THREE.TextureLoader().load(
+    'assets/flordeloto20.gif'
+);
 
-// ===== FLOR GALACTICA EN EL UNIVERSO 3D =====
+const mainLotusMaterial = new THREE.SpriteMaterial({
+    map: mainLotusTexture,
+    transparent: true,
+    depthWrite: false
+});
+
+const mainLotus = new THREE.Sprite(mainLotusMaterial);
+
+// Posición encima del planeta
+mainLotus.position.set(0, 118, 0);
+
+// Tamaño de la flor principal
+mainLotus.scale.set(85, 85, 1);
+
+scene.add(mainLotus);
+
+// Halo morado de la flor
+const flowerHalo = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+        map: makeGlow(512, '216,180,255', '139,77,240'),
+        transparent: true,
+        depthWrite: false,
+        opacity: 0.55
+    })
+);
+
+flowerHalo.position.copy(mainLotus.position);
+flowerHalo.scale.set(150, 150, 1);
+
+scene.add(flowerHalo);
 
 const flowerGifTexture = new THREE.TextureLoader().load(
     'assets/florgalactica011.gif'
@@ -1297,14 +1257,6 @@ flowerGifSprite.scale.set(85, 85, 1);
 
 // Integrar en la galaxia
 scene.add(flowerGifSprite);
-
-
-// Halo suave detras de la flor, mismo truco que el glow del nucleo, para que
-// no se vea como puntos sueltos flotando sino como una flor que brilla.
-// Escalado junto con la flor (R x2.17), asi el halo sigue proporcionado.
-const flowerHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(512,'216,180,255','139,77,240'),transparent:true,depthWrite:false,opacity:0.55}));
-flowerHalo.scale.set(260,260,1);
-flowerGroup.add(flowerHalo);
 
 // Palabras alrededor: frases del Día de las Flores Amarillas (min 1, se repiten
 // ciclicamente hasta llenar las 150 posiciones que la escena ya reserva,
@@ -1470,14 +1422,21 @@ function tick(){
   // Aquí continúa todo tu código original
   // Flor de particulas: billboard (siempre de frente a la camara) + giro propio
   // lento sobre su eje (efecto mandala) + respiracion suave de tamaño/brillo.
-  flowerGroup.quaternion.copy(camera.quaternion);
-  flowerPoints.rotation.z+=0.0025;
-  sparklePoints.rotation.z-=0.004;
-  const flowerBreath=1+0.05*Math.sin(t*0.6);
-  flowerGroup.scale.set(flowerBreath,flowerBreath,1);
-  flowerMat.opacity=0.85+0.15*Math.sin(t*1.3);
-  sparkleMat.opacity=0.65+0.35*Math.sin(t*2.4);
-  flowerHalo.material.opacity=0.45+0.15*Math.sin(t*0.6);
+// Animación de la nueva flor de loto
+mainLotus.quaternion.copy(camera.quaternion);
+
+const flowerBreath = 1 + 0.05 * Math.sin(t * 0.6);
+
+mainLotus.scale.set(
+    85 * flowerBreath,
+    85 * flowerBreath,
+    1
+);
+
+mainLotus.material.rotation += 0.0025;
+
+flowerHalo.quaternion.copy(camera.quaternion);
+flowerHalo.material.opacity = 0.45 + 0.15 * Math.sin(t * 0.6);
   ring.rotation.z+=0.003;
                 // Giro lento de la segunda constelación
 rotatingConstellation.rotation.z += 0.002;
