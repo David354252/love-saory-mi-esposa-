@@ -163,6 +163,56 @@
 @media (prefers-reduced-motion:reduce){
   #start-heart,#start-flower,#start-text{animation:none;}
 }
+     /* Flores moradas de la galaxia */
+#galaxy-flowers{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index:2;
+    opacity:0;
+    transition:opacity 2s ease;
+}
+
+#galaxy-flowers.visible{
+    opacity:1;
+}
+
+.galaxy-flower{
+    position:absolute;
+    width:clamp(28px,5vw,65px);
+    height:auto;
+    opacity:0;
+    object-fit:contain;
+    filter:drop-shadow(0 0 9px rgba(179,136,255,.7));
+    animation:florecer 2.5s ease-out forwards,
+              balanceo 6s ease-in-out infinite alternate;
+    animation-delay:var(--delay), calc(var(--delay) + 2.5s);
+}
+
+@keyframes florecer{
+    0%{
+        opacity:0;
+        transform:scale(0) rotate(-35deg);
+    }
+    70%{
+        opacity:.75;
+        transform:scale(1.15) rotate(12deg);
+    }
+    100%{
+        opacity:.65;
+        transform:scale(1) rotate(0deg);
+    }
+}
+
+@keyframes balanceo{
+    from{translate:-8px -8px;rotate:-10deg;}
+    to{translate:8px 10px;rotate:12deg;}
+}
+
+@media(prefers-reduced-motion:reduce){
+    .galaxy-flower{animation:none;opacity:.65;}
+}
 
   /* ===== Botón de mensaje (mismo patrón de galaxia-corazon-hotwheels, en morado) ===== */
   #love-letter-btn{
@@ -210,6 +260,7 @@
 </head>
 <body>
 <canvas id="c"></canvas>
+     <div id="galaxy-flowers"></div>
 
 <h1 id="main-title"></h1>
 
@@ -785,12 +836,41 @@ function tick(){requestAnimationFrame(tick);t+=0.01;
   renderer.render(scene,camera);
 }
 tick();
+     // ── 40 flores moradas que florecen al iniciar ──
+const galaxyFlowers=document.getElementById('galaxy-flowers');
+
+function createGalaxyFlowers(){
+    if(galaxyFlowers.children.length)return;
+
+    for(let i=0;i<40;i++){
+        const flower=document.createElement('img');
+
+        flower.src='assets/flor%20morada.png';
+        flower.alt='';
+        flower.className='galaxy-flower';
+
+        flower.style.left=(Math.random()*94+3)+'%';
+        flower.style.top=(Math.random()*88+6)+'%';
+        flower.style.setProperty(
+            '--delay',
+            (Math.random()*8)+'s'
+        );
+
+        galaxyFlowers.appendChild(flower);
+    }
+
+    galaxyFlowers.classList.add('visible');
+}
+     
 
 // ── Arranque: la musica recien empieza cuando se toca la pantalla ──
 const startScreen=document.getElementById('start-screen');
 function startExperience(){
   startScreen.classList.add('hidden');
   setTimeout(()=>startScreen.style.display='none',800);
+
+  createGalaxyFlowers();
+
   audio.play().catch(()=>{});
 }
 startScreen.addEventListener('click',startExperience);
