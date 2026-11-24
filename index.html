@@ -58,6 +58,21 @@
     36%{transform:scale(1.07);}
     50%{transform:scale(1);}
   }
+     #start-flower {
+  width: clamp(100px, 25vmin, 180px);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin-top: 12px;
+  filter: drop-shadow(0 0 15px rgba(180, 100, 255, 0.8));
+  animation: florFlotante 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes florFlotante {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
   #start-text{
     font-size:1.8em;color:#f0ddff;font-family:'Indie Flower','Bradley Hand','Segoe Script',cursive;
     text-shadow:0 0 7px #b388ff;text-align:center;
@@ -65,9 +80,9 @@
     animation:parpadeo 2.2s ease-in-out infinite;
   }
   @keyframes parpadeo{0%,100%{opacity:.55;}50%{opacity:1;}}
-  @media (prefers-reduced-motion:reduce){
-    #start-heart,#start-text{animation:none;}
-  }
+@media (prefers-reduced-motion:reduce){
+  #start-heart,#start-flower,#start-text{animation:none;}
+}
 
   /* ===== Botón de mensaje (mismo patrón de galaxia-corazon-hotwheels, en morado) ===== */
   #love-letter-btn{
@@ -130,9 +145,10 @@
 
 <div id="start-screen">
   <img id="start-heart" aria-hidden="true" alt="">
+  <img id="start-flower" src="assets/higanbana-morada.png" alt="">
   <div id="start-text">Toca para iniciar</div>
 </div>
-
+     
 <audio id="audio" loop>
   <source src="assets/WhatsApp%20Audio%202026-11-23%20at%209.40.52%20PM.mpeg" type="audio/mpeg">
 </audio>
