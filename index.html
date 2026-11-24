@@ -503,6 +503,36 @@ let targetDist=390,currentDist=390,rotX=0.2,rotY=0;
 const coreMat=new THREE.MeshPhongMaterial({color:0x0c0618,transparent:true,opacity:0.92,shininess:30});
 const core=new THREE.Mesh(new THREE.SphereGeometry(20,64,64),coreMat);
 scene.add(core);
+     // ===== FLORES MORADAS FIJAS EN 3D =====
+const flowerTexture = new THREE.TextureLoader().load(
+    'assets/flormoradara5.png'
+);
+
+const flowerMaterial = new THREE.SpriteMaterial({
+    map: flowerTexture,
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false
+});
+
+const galaxyFlowerGroup = new THREE.Group();
+
+const flowerPositions3D = [
+    {x:-75, y:45, z:-65, size:85},
+    {x:75, y:42, z:-70, size:90},
+    {x:-85, y:-45, z:-60, size:80},
+    {x:85, y:-48, z:-68, size:88},
+    {x:0, y:85, z:-80, size:95}
+];
+
+flowerPositions3D.forEach(pos => {
+    const flower = new THREE.Sprite(flowerMaterial);
+    flower.position.set(pos.x, pos.y, pos.z);
+    flower.scale.set(pos.size, pos.size, 1);
+    galaxyFlowerGroup.add(flower);
+});
+
+scene.add(galaxyFlowerGroup);
 
 // El título ahora vive en la cabecera fija (#main-title, ver DEDICA:CONFIG
 // mas arriba) en vez de un sprite 3D en el centro - mas legible y
