@@ -699,21 +699,23 @@ scene.add(andromedaGroup);
 const constellationGroup = new THREE.Group();
 
 // Estrellas de la constelación principal
-const constellationPoints = [
-    [-190, 75, -125],
-    [-125, 145, -110],
-    [-45, 125, -95],
-    [35, 175, -110],
-    [115, 125, -100],
-    [190, 65, -120],
-    [125, -5, -105],
-    [45, -65, -95],
-    [-45, -35, -110],
-    [-125, -90, -120],
-    [-190, -35, -105],
-    [-70, 55, -90],
-    [65, 45, -100]
-];
+// ===== CONSTELACIÓN PRINCIPAL EN FORMA DE CORAZÓN =====
+constellationPoints = Array.from({length: 28}, (_, i) => {
+    const a = (i / 28) * Math.PI * 2;
+
+    const x = 16 * Math.pow(Math.sin(a), 3);
+    const y = 13 * Math.cos(a)
+            - 5 * Math.cos(2 * a)
+            - 2 * Math.cos(3 * a)
+            - Math.cos(4 * a);
+
+    return [x * 10, y * 10, 0];
+});
+
+const connections = constellationPoints.map((_, i) => [
+    i,
+    (i + 1) % constellationPoints.length
+]);
 
 // Crear estrellas brillantes
 const starGeometry = new THREE.BufferGeometry();
@@ -798,85 +800,116 @@ mainConstellation.add(mainStars);
 mainConstellation.add(glowingStars);
 
 constellationGroup.add(mainConstellation);
-// ===== PRIMERA CONSTELACION: GRANDE Y CENTRADA =====
-mainConstellation.position.set(0, -76, 35);
-mainConstellation.scale.set(1.8, 1.8, 1.8);
-// ===== SEGUNDA CONSTELACIÓN GIRATORIA =====
+// Corazón principal delante del planeta
+const heartFit = innerWidth < 768 ? 0.68 : 1;
+
+mainConstellation.position.set(0, 0, 85);
+mainConstellation.scale.set(
+    1.05 * heartFit,
+    1.05 * heartFit,
+    1.05 * heartFit
+);
+// ===== SEGUNDO CORAZÓN GIGANTE EXTERIOR =====
 const rotatingConstellation = new THREE.Group();
 
-const spiralPositions = [];
-const spiralLines = [];
+const outerHeartPositions = [];
+const outerHeartLines = [];
 
-const spiralCount = 12;
+const outerHeartCount = 64;
 
-for (let i = 0; i < spiralCount; i++) {
-    const angle = i * 0.65;
-    const radius = 35 + i * 9;
+for (let i = 0; i < outerHeartCount; i++) {
+    const a = (i / outerHeartCount) * Math.PI * 2;
 
-    spiralPositions.push(
-        Math.cos(angle) * radius,
-        Math.sin(angle) * radius,
-        0
+    const x = 16 * Math.pow(Math.sin(a), 3);
+    const y = 13 * Math.cos(a)
+            - 5 * Math.cos(2 * a)
+            - 2 * Math.cos(3 * a)
+            - Math.cos(4 * a);
+
+    outerHeartPositions.push(x * 12, y * 12, 0);
+
+    const next = (i + 1) % outerHeartCount;
+
+    const nx = 16 * Math.pow(Math.sin((next / outerHeartCount) * Math.PI * 2), 3);
+    const ny = 13 * Math.cos((next / outerHeartCount) * Math.PI * 2)
+            - 5 * Math.cos(2 * (next / outerHeartCount) * Math.PI * 2)
+            - 2 * Math.cos(3 * (next / outerHeartCount) * Math.PI * 2)
+            - Math.cos(4 * (next / outerHeartCount) * Math.PI * 2);
+
+    outerHeartLines.push(
+        x * 12, y * 12, 0,
+        nx * 12, ny * 12, 0
     );
-
-    if (i > 0) {
-        const prev = i - 1;
-        spiralLines.push(
-            Math.cos(prev * 0.65) * (35 + prev * 9),
-            Math.sin(prev * 0.65) * (35 + prev * 9),
-            0,
-            Math.cos(angle) * radius,
-            Math.sin(angle) * radius,
-            0
-        );
-    }
 }
 
-const spiralGeometry = new THREE.BufferGeometry();
-spiralGeometry.setAttribute(
+const outerHeartGeometry = new THREE.BufferGeometry();
+outerHeartGeometry.setAttribute(
     'position',
-    new THREE.Float32BufferAttribute(spiralPositions, 3)
+    new THREE.Float32BufferAttribute(outerHeartPositions, 3)
 );
 
-const spiralStars = new THREE.Points(
-    spiralGeometry,
+const outerHeartLineGeometry = new THREE.BufferGeometry();
+outerHeartLineGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(outerHeartLines, 3)
+);
+
+// Estrellas principales
+const outerHeartStars = new THREE.Points(
+    outerHeartGeometry,
     new THREE.PointsMaterial({
-        color: 0xe8caff,
-        size: 4.5,
+        color: 0xf5eaff,
+        size: 6,
         transparent: true,
         opacity: 1,
-        blending: THREE.AdditiveBlending
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
     })
 );
 
-const spiralLineGeometry = new THREE.BufferGeometry();
-spiralLineGeometry.setAttribute(
-    'position',
-    new THREE.Float32BufferAttribute(spiralLines, 3)
-);
-
-const spiralLine = new THREE.LineSegments(
-    spiralLineGeometry,
-    new THREE.LineBasicMaterial({
-        color: 0x9b5de5,
+// Halo exterior
+const outerHeartGlow = new THREE.Points(
+    outerHeartGeometry,
+    new THREE.PointsMaterial({
+        color: 0xa855f7,
+        size: 21,
         transparent: true,
-        opacity: 0.65
+        opacity: 0.55,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
     })
 );
 
-// ===== ORBITA PRINCIPAL GIGANTE Y CENTRADA =====
-rotatingConstellation.add(spiralStars);
-rotatingConstellation.add(spiralLine);
+// Líneas del corazón
+const outerHeartLine = new THREE.LineSegments(
+    outerHeartLineGeometry,
+    new THREE.LineBasicMaterial({
+        color: 0xb388ff,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    })
+);
 
-// Órbita gigante centrada sobre el planeta
-rotatingConstellation.position.set(0, 0, 0);
-rotatingConstellation.scale.set(5.2, 5.2, 5.2);
+rotatingConstellation.add(
+    outerHeartGlow,
+    outerHeartLine,
+    outerHeartStars
+);
 
-// Mucho más grande
-rotatingConstellation.scale.set(3.8, 3.8, 3.8);
+// Corazón exterior delante del planeta
+rotatingConstellation.position.set(0, 0, 45);
+
+const outerHeartFit = innerWidth < 768 ? 0.78 : 1.15;
+
+rotatingConstellation.scale.set(
+    outerHeartFit,
+    outerHeartFit,
+    outerHeartFit
+);
 
 constellationGroup.add(rotatingConstellation);
-     
 // ===== NUEVAS CONSTELACIONES DEL UNIVERSO =====
 const extraConstellations = new THREE.Group();
 
@@ -943,50 +976,63 @@ function createExtraConstellation(points, connections, position, scale = 1) {
     return group;
 }
 
-// Constelación 1: forma de corona
+// ===== CUATRO CORAZONES PEQUEÑOS ALREDEDOR =====
+
+function makeSmallHeart(size = 4.5) {
+    const points = [];
+
+    for (let i = 0; i < 20; i++) {
+        const a = (i / 20) * Math.PI * 2;
+
+        const x = 16 * Math.pow(Math.sin(a), 3);
+        const y = 13 * Math.cos(a)
+                - 5 * Math.cos(2 * a)
+                - 2 * Math.cos(3 * a)
+                - Math.cos(4 * a);
+
+        points.push([x * size, y * size, 0]);
+    }
+
+    const connections = points.map((_, i) => [
+        i,
+        (i + 1) % points.length
+    ]);
+
+    return {points, connections};
+}
+
+const heartSide = innerWidth < 768 ? 125 : 225;
+const heartHeight = innerWidth < 768 ? 145 : 155;
+const smallHeartScale = innerWidth < 768 ? 0.48 : 0.72;
+
+const smallHeart = makeSmallHeart();
+
 const constellationCrown = createExtraConstellation(
-    [
-        [-45, 0, 0], [-25, 35, 0], [0, 48, 0],
-        [25, 35, 0], [45, 0, 0], [0, -15, 0]
-    ],
-    [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,3]],
-    [-280, 150, -190],
-    1.2
+    smallHeart.points,
+    smallHeart.connections,
+    [-heartSide, heartHeight, 75],
+    smallHeartScale
 );
 
-// Constelación 2: forma de diamante
 const constellationDiamond = createExtraConstellation(
-    [
-        [0, 55, 0], [45, 0, 0], [0, -55, 0],
-        [-45, 0, 0], [0, 0, 0]
-    ],
-    [[0,1],[1,2],[2,3],[3,0],[0,4],[1,4],[2,4],[3,4]],
-    [285, 125, -220],
-    1.15
+    smallHeart.points,
+    smallHeart.connections,
+    [heartSide, heartHeight, 75],
+    smallHeartScale
 );
 
-// Constelación 3: forma de estrella
 const constellationStar = createExtraConstellation(
-    [
-        [0, 55, 0], [15, 15, 0], [55, 0, 0],
-        [15, -15, 0], [0, -55, 0],
-        [-15, -15, 0], [-55, 0, 0], [-15, 15, 0]
-    ],
-    [[0,2],[2,4],[4,6],[6,0],[1,3],[3,5],[5,7],[7,1]],
-    [-300, -145, -210],
-    0.9
+    smallHeart.points,
+    smallHeart.connections,
+    [-heartSide, -heartHeight, 75],
+    smallHeartScale
 );
 
-// Constelación 4: forma de camino de estrellas
 const constellationPath = createExtraConstellation(
-    [
-        [-60, 30, 0], [-25, 55, 0], [10, 25, 0],
-        [45, 50, 0], [65, 0, 0], [25, -35, 0],
-        [-20, -45, 0], [-60, -10, 0]
-    ],
-    [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0]],
-    [260, -155, -180],
-    1.1
+    smallHeart.points,
+    smallHeart.connections,
+    [heartSide, -heartHeight, 75],
+    smallHeartScale
 );
 
 scene.add(extraConstellations);
@@ -1444,6 +1490,11 @@ mainLotusHalo.material.opacity =
                 // Giro lento de la segunda constelación
 rotatingConstellation.rotation.z += 0.002;
 rotatingConstellation.rotation.y += 0.0008;
+     // Giro de las constelaciones pequeñas
+constellationCrown.rotation.z += 0.0005;
+constellationDiamond.rotation.z -= 0.0007;
+constellationStar.rotation.y += 0.0008;
+constellationPath.rotation.z += 0.0004;
                 
   // Giro lento de las nuevas constelaciones
   constellationCrown.rotation.z += 0.0005;
