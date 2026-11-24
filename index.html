@@ -721,7 +721,7 @@ const starPositions = [];
 
 const starMaterial = new THREE.PointsMaterial({
     color: 0xe2c6ff,
-    size: 5,
+        size: 8,
     transparent: true,
     opacity: 1,
     blending: THREE.AdditiveBlending,
@@ -730,7 +730,7 @@ const starMaterial = new THREE.PointsMaterial({
 
 const starGlowMaterial = new THREE.PointsMaterial({
     color: 0x9b5de5,
-    size: 13,
+       size: 22,
     transparent: true,
     opacity: 0.45,
     blending: THREE.AdditiveBlending,
@@ -798,10 +798,9 @@ mainConstellation.add(mainStars);
 mainConstellation.add(glowingStars);
 
 constellationGroup.add(mainConstellation);
-// ===== CENTRAR Y AGRANDAR LA PRIMERA CONSTELACION =====
-mainConstellation.position.set(17, -45, 35);
-mainConstellation.scale.set(1.35, 1.35, 1.35);
-
+// ===== PRIMERA CONSTELACION: GRANDE Y CENTRADA =====
+mainConstellation.position.set(0, -76, 35);
+mainConstellation.scale.set(1.8, 1.8, 1.8);
 // ===== SEGUNDA CONSTELACIÓN GIRATORIA =====
 const rotatingConstellation = new THREE.Group();
 
