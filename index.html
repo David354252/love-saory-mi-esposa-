@@ -798,6 +798,9 @@ mainConstellation.add(mainStars);
 mainConstellation.add(glowingStars);
 
 constellationGroup.add(mainConstellation);
+     // ===== CENTRAR Y AGRANDAR LA PRIMERA CONSTELACION =====
+mainConstellation.position.set(0, 0, 35);
+mainConstellation.scale.set(1.55, 1.55, 1.55);
 
 // ===== SEGUNDA CONSTELACIÓN GIRATORIA =====
 const rotatingConstellation = new THREE.Group();
@@ -1265,11 +1268,46 @@ const sparkleGeo=new THREE.BufferGeometry();
 sparkleGeo.setAttribute('position',new THREE.BufferAttribute(sparklePositions,3));
 const sparkleMat=new THREE.PointsMaterial({size:3.2,map:dotTex,color:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true,opacity:0.9});
 const sparklePoints=new THREE.Points(sparkleGeo,sparkleMat);
-const flowerGroup=new THREE.Group();
+
+const flowerGroup = new THREE.Group();
 flowerGroup.add(flowerPoints);
 flowerGroup.add(sparklePoints);
 flowerGroup.position.set(0,118,0);
 scene.add(flowerGroup);
+
+// ===== FLOR GALACTICA ANIMADA GIF =====
+flowerGroup.visible = false;
+
+const flowerGif = document.createElement('img');
+flowerGif.src = 'assets/florgalactica011.gif';
+flowerGif.alt = '';
+
+flowerGif.style.position = 'fixed';
+flowerGif.style.width = '155px';
+flowerGif.style.height = '155px';
+flowerGif.style.objectFit = 'contain';
+flowerGif.style.pointerEvents = 'none';
+flowerGif.style.zIndex = '20';
+flowerGif.style.transform = 'translate(-50%, -50%)';
+flowerGif.style.filter = 'drop-shadow(0 0 12px #a855f7)';
+
+document.body.appendChild(flowerGif);
+
+// Posición de la flor sobre el planeta
+function updateFlowerGif() {
+    const position = new THREE.Vector3(0,118,0);
+    position.project(camera);
+
+    const x = (position.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-position.y * 0.5 + 0.5) * window.innerHeight;
+
+    flowerGif.style.left = x + 'px';
+    flowerGif.style.top = y + 'px';
+
+    flowerGif.style.display =
+        position.z > -1 && position.z < 1 ? 'block' : 'none';
+}
+
 // Halo suave detras de la flor, mismo truco que el glow del nucleo, para que
 // no se vea como puntos sueltos flotando sino como una flor que brilla.
 // Escalado junto con la flor (R x2.17), asi el halo sigue proporcionado.
@@ -1434,7 +1472,13 @@ addEventListener('touchend',(e)=>{if(e.touches.length<2)pinchDist=null;},{passiv
 
 // Animación
 let t=0;
-function tick(){requestAnimationFrame(tick);t+=0.01;
+function tick(){
+  requestAnimationFrame(tick);
+  t+=0.01;
+
+  updateFlowerGif();
+
+  // Aquí continúa todo tu código original
   // Flor de particulas: billboard (siempre de frente a la camara) + giro propio
   // lento sobre su eje (efecto mandala) + respiracion suave de tamaño/brillo.
   flowerGroup.quaternion.copy(camera.quaternion);
@@ -1581,17 +1625,17 @@ function createLotus3D(x, y, z, size) {
     return flower;
 }
 
-// Tres flores distribuidas alrededor del planeta
-const lotusFlower1 = createLotus3D(0, 105, 0, 48);
-const lotusFlower2 = createLotus3D(95, -45, 25, 38);
-const lotusFlower3 = createLotus3D(-85, -65, -30, 43);
+// ===== LOTOS GRANDES EN ORBITA AMPLIA =====
+const lotusFlower1 = createLotus3D(0, 230, 0, 85);
+const lotusFlower2 = createLotus3D(210, -110, 90, 72);
+const lotusFlower3 = createLotus3D(-210, -130, -90, 78);
 
 // Movimiento orbital 3D
 function animateLotusOrbit() {
     requestAnimationFrame(animateLotusOrbit);
 
-    lotusOrbitGroup.rotation.y += 0.004;
-    lotusOrbitGroup.rotation.z += 0.0015;
+  lotusOrbitGroup.rotation.y += 0.0025;
+lotusOrbitGroup.rotation.z += 0.001;
 
     lotusFlower1.material.rotation += 0.003;
     lotusFlower2.material.rotation -= 0.004;
