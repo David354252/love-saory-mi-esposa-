@@ -311,7 +311,7 @@ const DEFAULTS = {
   imagenInicio: "assets/start.webp",
   textoInicio: "Toca para iniciar",
   musicaMensaje: "",
-  titulo: "mi esposita sao  🪻",
+  titulo: "𝓶𝓲 𝓮𝓼𝓹𝓸𝓼𝓪 𝓼𝓪𝓸",
      mensaje: `A Saory: sobre las cosas que todavía no sé explicarte.
 
 No sé en qué momento comenzaste a formar parte de mis pensamientos de una manera tan particular. Quizás fue aquella tarde en el parque, cuando todavía no sabía prácticamente nada de ti. Eran cerca de las doce del mediodía y, sin ninguna razón que pudiera explicar, cuatro horas terminaron convirtiéndose en uno de los recuerdos que más he cuidado en mi memoria.
@@ -1200,11 +1200,20 @@ const ring=new THREE.Mesh(new THREE.RingGeometry(21,58,160),new THREE.MeshBasicM
 ring.rotation.x=Math.PI/2;
 scene.add(ring);
 
-// ===== NUEVA FLOR DE LOTO SOBRE EL PLANETA =====
 
-const mainLotusTexture = new THREE.TextureLoader().load(
-    'assets/flordeloto20.gif'
-);
+// ===== FLOR GALACTICA PRINCIPAL 3D =====
+
+// Cargar el GIF original
+const mainLotusImage = new Image();
+mainLotusImage.src = 'assets/florgalactica011.gif';
+
+// Canvas para reproducir los fotogramas del GIF
+const mainLotusCanvas = document.createElement('canvas');
+mainLotusCanvas.width = 256;
+mainLotusCanvas.height = 256;
+
+const mainLotusContext = mainLotusCanvas.getContext('2d');
+const mainLotusTexture = new THREE.CanvasTexture(mainLotusCanvas);
 
 const mainLotusMaterial = new THREE.SpriteMaterial({
     map: mainLotusTexture,
@@ -1214,49 +1223,29 @@ const mainLotusMaterial = new THREE.SpriteMaterial({
 
 const mainLotus = new THREE.Sprite(mainLotusMaterial);
 
-// Posición encima del planeta
+// Posición 3D encima del planeta
 mainLotus.position.set(0, 118, 0);
 
-// Tamaño de la flor principal
-mainLotus.scale.set(85, 85, 1);
+// Tamaño de la flor: grande, pero sin tapar la galaxia
+mainLotus.scale.set(62, 62, 1);
 
 scene.add(mainLotus);
 
-// Halo morado de la flor
-const flowerHalo = new THREE.Sprite(
+// Resplandor morado
+const mainLotusHalo = new THREE.Sprite(
     new THREE.SpriteMaterial({
         map: makeGlow(512, '216,180,255', '139,77,240'),
         transparent: true,
         depthWrite: false,
-        opacity: 0.55
+        opacity: 0.45
     })
 );
 
-flowerHalo.position.copy(mainLotus.position);
-flowerHalo.scale.set(150, 150, 1);
+mainLotusHalo.position.set(0, 118, -2);
+mainLotusHalo.scale.set(95, 95, 1);
 
-scene.add(flowerHalo);
+scene.add(mainLotusHalo);
 
-const flowerGifTexture = new THREE.TextureLoader().load(
-    'assets/florgalactica011.gif'
-);
-
-const flowerGifMaterial = new THREE.SpriteMaterial({
-    map: flowerGifTexture,
-    transparent: true,
-    depthWrite: false
-});
-
-const flowerGifSprite = new THREE.Sprite(flowerGifMaterial);
-
-// Posición detrás del planeta
-flowerGifSprite.position.set(0, 118, -85);
-
-// Tamaño de la flor
-flowerGifSprite.scale.set(85, 85, 1);
-
-// Integrar en la galaxia
-scene.add(flowerGifSprite);
 
 // Palabras alrededor: frases del Día de las Flores Amarillas (min 1, se repiten
 // ciclicamente hasta llenar las 150 posiciones que la escena ya reserva,
@@ -1422,22 +1411,33 @@ function tick(){
   // Aquí continúa todo tu código original
   // Flor de particulas: billboard (siempre de frente a la camara) + giro propio
   // lento sobre su eje (efecto mandala) + respiracion suave de tamaño/brillo.
-// Animación de la nueva flor de loto
-mainLotus.quaternion.copy(camera.quaternion);
 
-const flowerBreath = 1 + 0.05 * Math.sin(t * 0.6);
+// Animación de la flor galáctica
+if (mainLotusImage.complete && mainLotusImage.naturalWidth > 0) {
+    mainLotusContext.clearRect(0, 0, 256, 256);
+    mainLotusContext.drawImage(mainLotusImage, 0, 0, 256, 256);
+    mainLotusTexture.needsUpdate = true;
+}
+
+// Mantener la flor orientada hacia la cámara,
+// pero situada dentro del universo 3D
+mainLotus.quaternion.copy(camera.quaternion);
+mainLotusHalo.quaternion.copy(camera.quaternion);
+
+// Movimiento suave de respiración
+const flowerBreath = 1 + 0.035 * Math.sin(t * 0.7);
 
 mainLotus.scale.set(
-    85 * flowerBreath,
-    85 * flowerBreath,
+    62 * flowerBreath,
+    62 * flowerBreath,
     1
 );
 
-mainLotus.material.rotation += 0.0025;
+mainLotus.material.rotation += 0.0015;
 
-flowerHalo.quaternion.copy(camera.quaternion);
-flowerHalo.material.opacity = 0.45 + 0.15 * Math.sin(t * 0.6);
-  ring.rotation.z+=0.003;
+mainLotusHalo.material.opacity =
+    0.38 + 0.12 * Math.sin(t * 0.8);
+
                 // Giro lento de la segunda constelación
 rotatingConstellation.rotation.z += 0.002;
 rotatingConstellation.rotation.y += 0.0008;
