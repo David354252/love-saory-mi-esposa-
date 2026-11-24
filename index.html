@@ -700,7 +700,7 @@ const constellationGroup = new THREE.Group();
 
 // Estrellas de la constelación principal
 // ===== CONSTELACIÓN PRINCIPAL EN FORMA DE CORAZÓN =====
-constellationPoints = Array.from({length: 28}, (_, i) => {
+const constellationPoints = Array.from({length: 28}, (_, i) => {
     const a = (i / 28) * Math.PI * 2;
 
     const x = 16 * Math.pow(Math.sin(a), 3);
@@ -741,11 +741,7 @@ const starGlowMaterial = new THREE.PointsMaterial({
 
 const constellationVertices = [];
 
-const connections = [
-    [0,1],[1,2],[2,3],[3,4],[4,5],
-    [5,6],[6,7],[7,8],[8,9],[9,10],
-    [10,0],[2,11],[11,12],[12,4],[8,11]
-];
+
 
 const linePositions = [];
 
@@ -910,6 +906,7 @@ rotatingConstellation.scale.set(
 );
 
 constellationGroup.add(rotatingConstellation);
+     scene.add(constellationGroup);
 // ===== NUEVAS CONSTELACIONES DEL UNIVERSO =====
 const extraConstellations = new THREE.Group();
 
@@ -1495,13 +1492,7 @@ constellationCrown.rotation.z += 0.0005;
 constellationDiamond.rotation.z -= 0.0007;
 constellationStar.rotation.y += 0.0008;
 constellationPath.rotation.z += 0.0004;
-                
-  // Giro lento de las nuevas constelaciones
-  constellationCrown.rotation.z += 0.0005;
-  constellationDiamond.rotation.z -= 0.0007;
-  constellationStar.rotation.y += 0.0008;
-  constellationPath.rotation.z += 0.0004;
-
+               
 // Movimiento y destellos de las estrellas fugaces
 shootingStars.forEach(meteor => {
     if (meteor.userData.delay > 0) {
