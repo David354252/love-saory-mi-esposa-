@@ -1432,140 +1432,51 @@ function createGalaxyFlowers(){
 
 // ── Arranque: la musica recien empieza cuando se toca la pantalla ──
 
-// ===== TRES FLORES DE LOTO ANIMADAS =====
 
-// FLOR PRINCIPAL
-const lotus = document.createElement('img');
-lotus.src = 'assets/flordeloto20.gif';
-lotus.alt = '';
-lotus.id = 'lotus-3d';
-document.body.appendChild(lotus);
+// ===== TRES FLORES DE LOTO EN ORBITA 3D =====
 
-// FLOR ORBITAL DE ATRÁS
-const lotusOrbit = document.createElement('div');
-lotusOrbit.id = 'lotus-orbit';
+const lotusOrbitGroup = new THREE.Group();
+scene.add(lotusOrbitGroup);
 
-const orbitFlower = document.createElement('img');
-orbitFlower.src = 'assets/flordeloto20.gif';
-orbitFlower.alt = '';
-orbitFlower.id = 'lotus-orbit-flower';
+const lotusLoader = new THREE.TextureLoader();
 
-lotusOrbit.appendChild(orbitFlower);
-document.body.appendChild(lotusOrbit);
+const lotusTexture = lotusLoader.load('assets/flordeloto20.gif');
 
-// FLOR DE ABAJO
-const lotusBottom = document.createElement('img');
-lotusBottom.src = 'assets/flordeloto20.gif';
-lotusBottom.alt = '';
-lotusBottom.id = 'lotus-bottom';
-document.body.appendChild(lotusBottom);
+function createLotus3D(x, y, z, size) {
+    const material = new THREE.SpriteMaterial({
+        map: lotusTexture,
+        transparent: true,
+        depthWrite: false
+    });
 
-// ESTILOS DE LAS TRES FLORES
-const lotusStyle = document.createElement('style');
+    const flower = new THREE.Sprite(material);
 
-lotusStyle.textContent = `
-/* Flor principal */
-#lotus-3d {
-    position: fixed;
-    width: min(85vw, 520px);
-    height: auto;
-    object-fit: contain;
-    left: 50%;
-    top: 50%;
-    z-index: 20;
-    pointer-events: none;
-    opacity: 0;
-    filter: drop-shadow(0 0 25px #b388ff);
+    flower.position.set(x, y, z);
+    flower.scale.set(size, size, 1);
+
+    lotusOrbitGroup.add(flower);
+
+    return flower;
 }
 
-#lotus-3d.animate {
-    animation: lotusJourney 7s cubic-bezier(.2,.75,.25,1) forwards;
+// Tres flores distribuidas alrededor del planeta
+const lotusFlower1 = createLotus3D(0, 105, 0, 48);
+const lotusFlower2 = createLotus3D(95, -45, 25, 38);
+const lotusFlower3 = createLotus3D(-85, -65, -30, 43);
+
+// Movimiento orbital 3D
+function animateLotusOrbit() {
+    requestAnimationFrame(animateLotusOrbit);
+
+    lotusOrbitGroup.rotation.y += 0.004;
+    lotusOrbitGroup.rotation.z += 0.0015;
+
+    lotusFlower1.material.rotation += 0.003;
+    lotusFlower2.material.rotation -= 0.004;
+    lotusFlower3.material.rotation += 0.002;
 }
 
-@keyframes lotusJourney {
-    0% {
-        opacity: 0;
-        transform: translate(-50%,-50%) translate3d(0,80px,-250px)
-        scale(.05) rotateY(0deg) rotateZ(0deg);
-    }
-    12% {
-        opacity: 1;
-    }
-    45% {
-        opacity: 1;
-        transform: translate(-50%,-50%) translate3d(0,0,100px)
-        scale(1.4) rotateY(360deg) rotateZ(90deg);
-    }
-    72% {
-        opacity: 1;
-        transform: translate(-50%,-50%) translate3d(30vw,-5vh,0)
-        scale(.65) rotateY(650deg) rotateZ(250deg);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-50%,-50%) translate3d(75vw,-20vh,-200px)
-        scale(.08) rotateY(900deg) rotateZ(360deg);
-    }
-}
-
-/* Flor de atrás: órbita */
-#lotus-orbit {
-    position: fixed;
-    width: min(75vw, 500px);
-    aspect-ratio: 1;
-    left: 50%;
-    top: 50%;
-    z-index: 1;
-    pointer-events: none;
-    border-radius: 50%;
-    animation: lotusOrbitRotation 24s linear infinite;
-}
-
-#lotus-orbit-flower {
-    position: absolute;
-    width: clamp(65px, 13vw, 110px);
-    height: auto;
-    object-fit: contain;
-    left: 50%;
-    top: -45px;
-    transform: translateX(-50%);
-    filter: drop-shadow(0 0 18px #a855f7);
-}
-
-@keyframes lotusOrbitRotation {
-    from {
-        transform: translate(-50%,-50%) rotate(0deg);
-    }
-    to {
-        transform: translate(-50%,-50%) rotate(360deg);
-    }
-}
-
-/* Flor inferior */
-#lotus-bottom {
-    position: fixed;
-    width: min(32vw, 190px);
-    height: auto;
-    object-fit: contain;
-    left: 50%;
-    bottom: 2vh;
-    z-index: 15;
-    pointer-events: none;
-    opacity: .85;
-    transform: translateX(-50%);
-    filter: drop-shadow(0 0 20px #b388ff);
-    animation: lotusBottomFloat 5s ease-in-out infinite alternate;
-}
-
-@keyframes lotusBottomFloat {
-    from {
-        transform: translateX(-50%) translateY(0) rotate(-8deg);
-    }
-    to {
-        transform: translateX(-50%) translateY(-15px) rotate(8deg);
-    }
-}
-`;
+animateLotusOrbit();
 
 document.head.appendChild(lotusStyle);
 
@@ -1576,11 +1487,7 @@ function startExperience(){
   startScreen.classList.add('hidden');
   setTimeout(()=>startScreen.style.display='none',800);
 
-  createGalaxyFlowers();
-     if (!lotusStarted) {
-    lotusStarted = true;
-    lotus.classList.add('animate');
-}
+
 
   audio.play().catch(()=>{});
 }
