@@ -1203,9 +1203,9 @@ scene.add(ring);
 // ===== FLOR GALACTICA PRINCIPAL 3D =====
 
 // Cargar el GIF original
-const mainLotusImage = new Image();
+const mainLotusImage = document.createElement('img');
 mainLotusImage.src = 'assets/florgalactica011.gif';
-
+mainLotusImage.crossOrigin = 'anonymous';
 // Canvas para reproducir los fotogramas del GIF
 const mainLotusCanvas = document.createElement('canvas');
 mainLotusCanvas.width = 256;
