@@ -39,12 +39,50 @@
     #main-title{font-size:1.55em;top:22px;white-space:normal;padding:0 10px;line-height:1.15;}
   }
 
-  #start-screen{
-    position:fixed;top:0;left:0;width:100%;height:100%;
-    background:#000;display:flex;justify-content:center;align-items:center;
-    flex-direction:column;color:#fff;z-index:9999;padding:20px;cursor:pointer;
+#start-screen{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+  background: #000 url("assets/flor%20morada2.png") center center / cover no-repeat;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:9999;
+    cursor:pointer;
     transition:opacity .7s ease,visibility .7s ease;
-  }
+}
+#start-heart,
+#start-flower,
+#start-text{
+    display:none !important;
+}
+
+#start-screen.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+#start-heart,
+#start-flower,
+#start-text{
+    display:none !important;
+}
+
+#start-screen.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+/* Ocultar los elementos de la portada anterior */
+#start-heart,
+#start-flower,
+#start-text{
+    display:none;
+}
   #start-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
   #start-heart{
     width:clamp(110px,28vmin,210px);height:auto;object-fit:contain;display:block;
