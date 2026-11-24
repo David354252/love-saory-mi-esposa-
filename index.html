@@ -1,361 +1,634 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nuestro Universo 💜</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<!-- DEDICA:META -->
+<title>Galaxia Simple - Para mi esposicita sao </title>
+<meta name="description" content="Una galaxia sencilla con anillo morado, una flor de partículas sobre el centro y fotos flotando entre frases del Día de las Flores Moradas.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪻</text></svg>">
+<!-- Preload de la foto de portada, como <link> estatico en el <head> (no por JS,
+     que llega demasiado tarde: el navegador ya esta ocupado bajando three.js y las
+     fuentes para cuando un script al final del body crea el preload). El literal
+     "assets/start.webp" lo reescribe el publicador (Capa 1, rewriteAssetLiterals)
+     con la URL real - de fabrica o la que haya subido el cliente - exactamente
+     igual que el resto de literales de assets de esta plantilla. -->
+<link rel="preload" as="image" href="assets/start.webp" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
 <style>
+  /* Sin esto, cualquier elemento con width/height:100% Y padding a la vez
+     queda mas ancho/alto que el propio 100% (el padding se suma aparte con
+     el box-sizing por defecto) - eso es lo que corria #start-screen 20px
+     hacia la derecha (100% + 20px de padding a cada lado = 40px de sobra),
+     desalineando el emoji y el texto de "Toca para iniciar" del centro real
+     de la pantalla. */
+  *{box-sizing:border-box;}
+  html, body { margin:0; height:100%; background:#000; overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
+  canvas { display:block; }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+  #main-title{
+    position:fixed;top:40px;left:0;right:0;width:100%;
+    font-size:2.6em;color:#f0ddff;white-space:nowrap;
+    text-shadow:0 0 10px #b388ff,0 0 18px #7c3aed;
+    z-index:10;pointer-events:none;text-align:center;
+    font-family:'Indie Flower','Bradley Hand','Segoe Script',cursive;
+  }
+  @media (max-width:768px){
+    #main-title{font-size:1.55em;top:22px;white-space:normal;padding:0 10px;line-height:1.15;}
+  }
 
-html,body{
-    width:100%;
-    height:100%;
-    overflow-y:auto;
-    overflow-x:hidden;
-}
+  #start-screen{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:#000;display:flex;justify-content:center;align-items:center;
+    flex-direction:column;color:#fff;z-index:9999;padding:20px;cursor:pointer;
+    transition:opacity .7s ease,visibility .7s ease;
+  }
+  #start-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+  #start-heart{
+    width:clamp(110px,28vmin,210px);height:auto;object-fit:contain;display:block;
+    filter:drop-shadow(0 0 14px rgba(179,136,255,.75)) drop-shadow(0 0 36px rgba(139,77,240,.38)) drop-shadow(0 0 66px rgba(124,58,237,.22));
+    animation:latido 1.35s ease-in-out infinite;transform-origin:50% 55%;
+  }
+  @keyframes latido{
+    0%,100%{transform:scale(1);}
+    12%{transform:scale(1.15);}
+    24%{transform:scale(1);}
+    36%{transform:scale(1.07);}
+    50%{transform:scale(1);}
+  }
+  #start-text{
+    font-size:1.8em;color:#f0ddff;font-family:'Indie Flower','Bradley Hand','Segoe Script',cursive;
+    text-shadow:0 0 7px #b388ff;text-align:center;
+    margin-top:clamp(16px,3.5vh,28px);
+    animation:parpadeo 2.2s ease-in-out infinite;
+  }
+  @keyframes parpadeo{0%,100%{opacity:.55;}50%{opacity:1;}}
+  @media (prefers-reduced-motion:reduce){
+    #start-heart,#start-text{animation:none;}
+  }
 
-body{
-font-family:Georgia,serif;
-background:radial-gradient(circle at center,#4b0082 0%,#1b0035 45%,#05010f 100%);
-color:white;
-}
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:0;
-}
-
-#planeta{
-position:fixed;
-top:40px;
-right:40px;
-width:120px;
-height:120px;
-border-radius:50%;
-background:radial-gradient(circle at 30% 30%,#f6dcff 0%,#b65cff 45%,#6a1bb9 75%,#2b004d 100%);
-box-shadow:0 0 40px rgba(182,92,255,.7);
-z-index:1;
-}
-
-#planeta::before{
-content:"";
-position:absolute;
-left:-20px;
-top:46px;
-width:160px;
-height:24px;
-border:3px solid rgba(255,255,255,.45);
-border-radius:50%;
-transform:rotate(-18deg);
-}
-
-#contenido{
-position:absolute;
-inset:0;
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:10;
-}
-
-.tarjeta{
-width:min(90%,800px);
-padding:40px;
-text-align:center;
-border-radius:30px;
-background:rgba(90,0,140,.18);
-border:1px solid rgba(255,255,255,.15);
-backdrop-filter:blur(12px);
-box-shadow:0 0 40px rgba(180,0,255,.35);
-animation:aparecer 2.5s ease,flotar 5s ease-in-out infinite;
-}
-
-h1{
-font-size:58px;
-color:#f0d8ff;
-text-shadow:0 0 15px #cf6cff;
-margin-bottom:20px;
-animation:brillo 2.5s infinite;
-}
-
-p{
-font-size:23px;
-line-height:1.8;
-color:#f8f2ff;
-}
-
-#mensaje{
-opacity:0;
-animation:aparecerTexto 3s ease forwards;
-animation-delay:1.5s;
-}
-
-#frase{
-margin-top:25px;
-color:#f2b8ff;
-font-style:italic;
-}
-
-#boton,#carta{
-display:inline-block;
-margin-top:25px;
-padding:14px 28px;
-border:none;
-border-radius:40px;
-background:linear-gradient(45deg,#7b2cff,#b84dff);
-color:white;
-font-size:20px;
-text-decoration:none;
-cursor:pointer;
-transition:.3s;
-box-shadow:0 0 20px rgba(184,77,255,.6);
-}
-
-#boton:hover,#carta:hover{
-transform:scale(1.08);
-}
-
-#mensajeOculto{
-display:none;
-margin-top:25px;
-padding:20px;
-border-radius:20px;
-background:rgba(255,255,255,.08);
-line-height:1.8;
-}
-
-@keyframes aparecer{
-from{opacity:0;transform:translateY(35px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-@keyframes aparecerTexto{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-@keyframes flotar{
-0%{transform:translateY(0);}
-50%{transform:translateY(-10px);}
-100%{transform:translateY(0);}
-}
-
-@keyframes brillo{
-0%{text-shadow:0 0 10px #cf6cff;}
-50%{text-shadow:0 0 30px #fff,0 0 50px #cf6cff;}
-100%{text-shadow:0 0 10px #cf6cff;}
-}
-
+  /* ===== Botón de mensaje (mismo patrón de galaxia-corazon-hotwheels, en morado) ===== */
+  #love-letter-btn{
+    position:fixed;bottom:24px;right:24px;z-index:1800;
+    width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#6d28d9,#b388ff);
+    box-shadow:0 0 18px rgba(179,136,255,.6),0 4px 14px rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:center;font-size:1.55rem;
+    animation:btnBeat 1.8s ease-in-out infinite;transition:transform .25s ease;
+  }
+  #love-letter-btn:hover{transform:scale(1.08);}
+  @keyframes btnBeat{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  #love-letter-overlay{
+    position:fixed;inset:0;background:rgba(10,0,24,.82);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    z-index:2500;display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .4s ease;padding:24px;box-sizing:border-box;
+  }
+  #love-letter-overlay.visible{opacity:1;pointer-events:auto;}
+  #love-letter-card{
+    max-width:620px;width:100%;max-height:82vh;overflow-y:auto;
+    background:linear-gradient(160deg,rgba(40,10,70,.96),rgba(12,6,24,.98));
+    border:1px solid rgba(179,136,255,.35);border-radius:22px;padding:40px 32px;
+    box-shadow:0 0 40px rgba(179,136,255,.35);color:#f0ddff;
+    font-family:'Indie Flower','Bradley Hand','Segoe Script',cursive;
+    transform:translateY(18px) scale(.96);transition:transform .4s ease;position:relative;
+  }
+  #love-letter-overlay.visible #love-letter-card{transform:translateY(0) scale(1);}
+  #love-letter-card h2{
+    text-align:center;margin:0 0 22px;font-size:1.8rem;font-weight:700;color:#f0ddff;
+    text-shadow:0 0 10px #8b4df0,0 0 18px #b388ff;
+  }
+  #love-letter-card p{line-height:1.75;font-size:1.1rem;margin:0 0 16px;text-shadow:0 0 8px rgba(139,77,240,.2);}
+  #love-letter-close{position:absolute;top:14px;right:16px;background:none;border:none;color:#cdaaff;font-size:1.35rem;cursor:pointer;line-height:1;padding:4px;}
+  #love-letter-close:hover{color:#fff;}
+  @media (max-width:480px){
+    #love-letter-btn{width:52px;height:52px;font-size:1.3rem;bottom:18px;right:18px;}
+    #love-letter-card{padding:30px 22px;border-radius:18px;}
+    #love-letter-card h2{font-size:1.5rem;}
+    #love-letter-card p{font-size:1rem;}
+  }
 </style>
-
+<meta name="dedica-origin" content="galaxia-simple-flores-moradas@1.0.0:bba5efdc3ffb">
+<!-- DedicaCodes galaxia-simple-flores-moradas@1.0.0:bba5efdc3ffb - dedicacodes.com -->
 </head>
 <body>
+<canvas id="c"></canvas>
 
-<canvas id="espacio"></canvas>
+<h1 id="main-title"></h1>
 
-<div id="planeta"></div>
+<button id="love-letter-btn" aria-label="Leer mensaje">💌</button>
 
-<div id="contenido">
-<div class="tarjeta">
-
-<h1>💜 Eres mi esposa 💜</h1>
-
-<p id="mensaje">
-Quiero que te quedes conmigo.<br><br>
-
-Entre millones de 67 millones  estrellas ,
-el universo me regaló la más hermosa... tú.<br><br>
-
-No importa cuántos mundos existan,
-mi hogar siempre será a tu lado.
-</p>
-
-<p id="frase">
-"Y si existieran mil universos...
-en los mil volvería a elegirte."
-</p>
-
-<a id="boton"
-target="_blank"
-href="https://www.youtube.com/results?search_query=California+Dreamin+The+Mamas+and+The+Papas">
-🎵 Nuestra canción
-</a>
-
-<br>
-
-<button id="carta">💌 Lee mi carta</button>
-
-<div id="mensajeOculto">
-<p>
-
-Mi querida Saory,
-
-No sé si existan palabras suficientes para describir todo lo que significas para mí. Hay sentimientos que son tan grandes que el idioma se queda pequeño, y aun así quiero intentarlo, porque mereces saber todo lo que guardo en mi corazón.
-
-Antes de conocerte, había días que simplemente pasaban. Respiraba, sonreía de vez en cuando, seguía adelante, pero había un vacío que ni siquiera sabía explicar. Entonces llegaste tú. No llegaste haciendo ruido ni prometiendo cambiar mi vida; simplemente apareciste... y poco a poco hiciste que todo tuviera un color diferente.
-
-Gracias por existir. Gracias por ser la persona que eres. Gracias por tu paciencia, por tu forma de escucharme, por hacerme sentir que no estoy solo y por regalarme momentos que jamás voy a olvidar. Hay personas que pasan por nuestra vida y dejan un recuerdo; tú llegaste para convertirte en parte de la mía.
-
-A veces me pongo a pensar entre cuántas personas existe en el mundo, cuántos caminos pudieron cruzarse y nunca lo hicieron, cuántas casualidades tuvieron que ocurrir para que tú y yo nos encontráramos. Y cada vez que lo pienso siento que fui increíblemente afortunado.
-
-No amo solamente tu sonrisa, aunque podría quedarme viéndola durante horas. No amo solamente tu forma de hablar, aunque podría escucharte todo el día. Amo la paz que siento cuando estoy contigo, la tranquilidad que me das y la manera en que haces que cualquier lugar se sienta como hogar.
-
-Quiero que sepas que no espero un amor perfecto. Quiero un amor verdadero. Uno que permanezca cuando lleguen los días difíciles, uno que aprenda de los errores, que se fortalezca con el tiempo y que nunca deje de elegirse.
-
-Si alguna vez fallo, quiero aprender. Si alguna vez me equivoco, quiero corregirlo. Porque eres demasiado importante para mí como para dejar que el orgullo sea más grande que el amor.
-
-Sueño con un futuro en el que podamos mirar atrás y recordar este momento con una sonrisa. Sueño con construir recuerdos contigo, con celebrar tus alegrías como si fueran mías, con abrazarte cuando el mundo pese demasiado y con hacerte sentir todos los días lo especial que eres.
-
-Quiero estar en tus mejores días, pero también en los peores. Quiero sostener tu mano cuando tengas miedo, hacerte reír cuando estés triste y recordarte siempre que nunca tendrás que enfrentar la vida sola mientras yo pueda estar a tu lado.
-
-Prometo nunca dejar de admirarte. Prometo escucharte, respetarte y cuidarte. Prometo que incluso cuando los años pasen seguiré buscando razones para enamorarme de ti una y otra vez.
-
-Y si alguna vez dudas de cuánto te amo, mira el cielo una noche llena de estrellas. Será imposible contarlas todas... y aun así seguirán siendo menos que todas las razones por las que doy gracias por haberte conocido.
-
-Dicen que el universo es infinito. Yo creo que mi amor por ti también lo es. Porque cada día descubro una nueva razón para quererte más que el anterior.
-
-Si existieran mil vidas, te buscaría en las mil. Si existieran mil universos, caminaría por cada uno hasta encontrarte. Y cuando por fin lo hiciera, volvería a tomarte de la mano y volvería a elegirte, sin dudarlo, una y otra vez.
-
-Gracias por hacerme creer que el amor verdadero existe.
-
-Gracias por llegar cuando más lo necesitaba.
-
-Gracias por ser tú.
-
-Y si algún día lees esta carta dentro de muchos años, quiero que recuerdes una sola cosa: desde el momento en que entraste en mi vida, nunca dejé de elegirte.
-
-Con todo mi corazón, con toda mi alma y con todo el amor que soy capaz de sentir...
-
-Te amo hoy.
-
-Te amaré mañana.
-
-Y mientras mi corazón siga latiendo, seguirá pronunciando tu nombre con el mismo cariño con el que lo hace ahora.
-
-Siempre tuyo.
-
-💜
-</p>
+<div id="love-letter-overlay">
+  <div id="love-letter-card">
+    <button id="love-letter-close" aria-label="Cerrar mensaje">✕</button>
+    <h2>Para ti 💜</h2>
+    <div id="love-letter-body"></div>
+  </div>
 </div>
 
+<div id="start-screen">
+  <img id="start-heart" aria-hidden="true" alt="">
+  <div id="start-text">Toca para iniciar</div>
 </div>
-</div>
+
+<audio id="audio" loop>
+  <source src="assets/musica.mp3" type="audio/mpeg">
+</audio>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js"></script>
+
+<!-- DEDICA:CONFIG -->
+<script>
+const DEFAULTS = {
+  imagenInicio: "assets/start.webp",
+  textoInicio: "Toca para iniciar",
+  musicaMensaje: "",
+  titulo: "Feliz Día de las Flores Moradas 🪻",
+  mensaje: "Hay personas que llegan y, sin darse cuenta, hacen que muchos de tus días sean mejores. Así eres tú para mí.\n\nGracias por cada momento compartido, por las risas y por estar ahí incluso en lo simple. Quiero que sepas cuánto vales y cuánto significas para mí.\n\nQue esta flor morada te recuerde, hoy y siempre, lo especial que eres.",
+  frases: [
+    "🪻 Como la flor morada, te admiro","💜 Gracias por ser mi calma de siempre","🪻 Contigo hasta lo simple brilla",
+    "💜 Hoy el morado lleva tu nombre","🪻 Esta flor te recuerda cuánto vales","💜 Tu amistad, mi lugar favorito",
+    "🪻 9 de octubre, contigo siempre","💜 Una flor morada para quien ilumina","🪻 Gracias por quedarte siempre",
+    "💜 Contigo el día pesa menos","🪻 Un gracias que no necesita fecha","💜 Tu risa le hace bien a mis días",
+    "🪻 Hoy celebro tenerte cerca","💜 Apareces cuando más hace falta","🪻 Pétalos morados solo para ti",
+    "💜 Feliz día, pienso en ti con cariño","🪻 Contigo todo lugar es bonito","💜 Un ramo de gracias por estar ahí",
+    "🪻 Que esta flor te alcance hoy","💜 Admiras lo bueno, como esta flor","🪻 El jardín entero te manda saludos",
+    "💜 Tu cariño no pasa de moda","🪻 Contigo las tardes se hacen cortas","💜 Esta flor guarda un abrazo para ti",
+    "🪻 No necesito un motivo para quererte","💜 Quiero que sepas cuánto importas","🪻 El morado también dice te quiero",
+    "💜 Gracias por sumar calma a mis días","🪻 Aquí siempre tienes un lugar","💜 Feliz día, contigo todo es mejor",
+    "🪻 Hoy el morado te sonríe","💜 Eres mi flor favorita","🪻 Gracias por tanto cariño",
+    "💜 Contigo cualquier día es especial","🪻 Un jardín morado para ti","💜 Tu presencia es un regalo",
+    "🪻 Siempre floreces donde estás","💜 Gracias por tu linda amistad","🪻 Una flor que nunca se marchita",
+    "💜 Hoy celebro quien eres","🪻 Contigo todo florece distinto","💜 Que tu día se llene de morado",
+    "🪻 Eres parte de mi jardín favorito","💜 Gracias por existir así, tal cual","🪻 Mi cariño por ti no se marchita"
+  ],
+  fotos: ["assets/img1.webp","assets/img2.webp","assets/img3.webp"],
+  musica: "assets/musica.mp3"
+};
+const CONFIG=(window.DEDICA&&window.DEDICA.merge)?window.DEDICA.merge(DEFAULTS,window.DEDICA.config):DEFAULTS;
+</script>
 
 <script>
-const canvas = document.getElementById("espacio");
-const ctx = canvas.getContext("2d");
+// ================= Título fijo + música (arranca recién al tocar) =================
+document.getElementById('main-title').textContent=CONFIG.titulo;
+document.getElementById('start-text').textContent=CONFIG.textoInicio||DEFAULTS.textoInicio;
+// Portada: imagen propia de inicio (independiente de las fotos que orbitan - assets/start.webp
+// es una copia aparte de assets/img1.webp a propósito, para que editar una no cruce la otra).
+const imagenInicio=CONFIG.imagenInicio||DEFAULTS.imagenInicio;
+document.getElementById('start-heart').src=imagenInicio;
+// El preload real vive como <link> estatico en el <head> (ver comentario ahi
+// arriba) - llega a tiempo de verdad, antes de que three.js y las fuentes
+// empiecen a competir por ancho de banda. Aqui ya no hace falta nada mas.
 
-function ajustar() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
+// ================= Botón de mensaje =================
+const letterBody=document.getElementById('love-letter-body');
+(CONFIG.mensaje||DEFAULTS.mensaje).split(/\n\s*\n/).forEach((paragraph)=>{
+  const p=document.createElement('p');p.textContent=paragraph;letterBody.appendChild(p);
+});
+const letterBtn=document.getElementById('love-letter-btn');
+const letterOverlay=document.getElementById('love-letter-overlay');
+const letterClose=document.getElementById('love-letter-close');
 
-ajustar();
-window.addEventListener("resize", ajustar);
-
-const estrellas = [];
-
-for (let i = 0; i < 450; i++) {
-    estrellas.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2,
-        v: 0.2 + Math.random() * 0.5
+// Sonido al abrir el mensaje: si el cliente sube su propio audio se reproduce
+// ese; si lo deja vacio (default de fabrica) suena una campanita generada por
+// codigo (sin necesidad de ningun archivo), un acorde corto tipo "ting".
+const musicaMensaje=(CONFIG.musicaMensaje||DEFAULTS.musicaMensaje||'').trim();
+let letterAudio=null,letterAC=null;
+if(musicaMensaje){letterAudio=new Audio(musicaMensaje);letterAudio.volume=.85;}
+function reproducirCampanita(){
+  try{
+    letterAC=letterAC||new (window.AudioContext||window.webkitAudioContext)();
+    if(letterAC.state==='suspended')letterAC.resume();
+    const t=letterAC.currentTime;
+    [783.99,987.77,1174.66].forEach((f,i)=>{
+      const o=letterAC.createOscillator(),g=letterAC.createGain();
+      o.type='sine';o.frequency.value=f;
+      g.gain.setValueAtTime(.0001,t+i*.08);
+      g.gain.exponentialRampToValueAtTime(.09,t+i*.08+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,t+i*.08+.9);
+      o.connect(g).connect(letterAC.destination);
+      o.start(t+i*.08);o.stop(t+i*.08+.95);
     });
+  }catch(e){}
+}
+function openLetter(){letterOverlay.classList.add('visible');if(letterAudio){letterAudio.currentTime=0;letterAudio.play().catch(()=>{});}else{reproducirCampanita();}}
+function closeLetter(){letterOverlay.classList.remove('visible');}
+letterBtn.addEventListener('click',openLetter);
+letterClose.addEventListener('click',closeLetter);
+letterOverlay.addEventListener('click',(e)=>{if(e.target===letterOverlay)closeLetter();});
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeLetter();});
+const audio=document.getElementById('audio');
+audio.querySelector('source').src=CONFIG.musica;
+audio.load();
+
+// ================= Escena =================
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,5000);
+let targetDist=390,currentDist=390,rotX=0.2,rotY=0;
+
+// Fondo: negro solido + el campo de estrellas generado abajo. La textura
+// de nebulosa externa que traia el archivo original apuntaba a una URL de
+// GitHub que ya no existe (404 - nunca se veia, ni siquiera antes de este
+// cambio) - se quita en vez de dejar una dependencia externa rota.
+
+// Estrellas
+(function makeStars(count=2000,spread=3000){
+  const g=new THREE.BufferGeometry();
+  const pos=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r=spread*(0.3+Math.random()*0.7);
+    const th=Math.random()*Math.PI*2;
+    const ph=Math.acos(2*Math.random()-1);
+    pos[i*3+0]=r*Math.sin(ph)*Math.cos(th);
+    pos[i*3+1]=r*Math.cos(ph);
+    pos[i*3+2]=r*Math.sin(ph)*Math.sin(th);
+  }
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:1.5,color:0xffffff,depthWrite:false})));
+})();
+
+// Núcleo tipo "agujero negro" (oscuro y opaco, para que el anillo resalte por contraste) -
+// tinte violeta muy oscuro en vez de negro puro, para que se note la paleta incluso en el centro.
+const coreMat=new THREE.MeshPhongMaterial({color:0x0c0618,transparent:true,opacity:0.92,shininess:30});
+const core=new THREE.Mesh(new THREE.SphereGeometry(20,64,64),coreMat);
+scene.add(core);
+
+// El título ahora vive en la cabecera fija (#main-title, ver DEDICA:CONFIG
+// mas arriba) en vez de un sprite 3D en el centro - mas legible y
+// consistente con el resto del catalogo.
+
+// Glow exterior (reducido, para que el anillo se note más)
+const GLOW_BASE=181;
+function makeGlow(size=768,c1='216,180,255',c2='139,77,240'){
+  const c=document.createElement('canvas');c.width=c.height=size;
+  const g=c.getContext('2d');
+  const grad=g.createRadialGradient(size/2,size/2,size*0.05,size/2,size/2,size*0.5);
+  grad.addColorStop(0,'rgba('+c1+',0.55)');
+  grad.addColorStop(0.5,'rgba('+c2+',0.25)');
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle=grad;g.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(c);
+}
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(),transparent:true,depthWrite:false}));
+glow.scale.set(GLOW_BASE,GLOW_BASE,1);
+scene.add(glow);
+
+// Anillo único (antes eran 3 anillos separados con huecos reales entre
+// ellos). Sigue siendo un solo disco continuo (42-116, sin huecos), pero
+// ahora con textura de franjas finas superpuestas al degradado de base -
+// como los anillos de Saturno, que se ven "en capas" por dentro sin
+// separarse en piezas distintas.
+function ringTexture(size=1024){
+  const c=document.createElement('canvas');c.width=c.height=size;
+  const g=c.getContext('2d');g.translate(size/2,size/2);
+  const rInner=size*0.205,rOuter=size*0.49;
+  // Base: un solo degradado continuo de borde a borde, sin apagarse hacia
+  // el borde exterior, para que el anillo se vea denso y solido.
+  const grd=g.createRadialGradient(0,0,rInner,0,0,rOuter);
+  grd.addColorStop(0.00,'rgba(245,235,255,1)');
+  grd.addColorStop(0.30,'rgba(216,180,255,1)');
+  grd.addColorStop(0.65,'rgba(155,93,224,0.95)');
+  grd.addColorStop(1.00,'rgba(109,40,217,0.85)');
+  g.fillStyle=grd;
+  g.beginPath();g.arc(0,0,rOuter,0,Math.PI*2);g.arc(0,0,rInner,0,Math.PI*2,true);g.closePath();g.fill();
+
+  // Franjas concentricas finas por encima del degradado base - varian el
+  // brillo (mas claras u oscuras), nunca la opacidad hasta 0, asi que no
+  // dejan huecos ni se leen como anillos separados, solo como textura.
+  const bandCount=26;
+  for(let i=0;i<bandCount;i++){
+    const r=rInner+(rOuter-rInner)*(i/(bandCount-1));
+    const dark=i%3===0;
+    g.beginPath();
+    g.arc(0,0,r,0,Math.PI*2);
+    g.lineWidth=(rOuter-rInner)/bandCount*(0.55+Math.random()*0.35);
+    g.strokeStyle=dark?'rgba(55,15,110,0.20)':'rgba(240,225,255,0.16)';
+    g.stroke();
+  }
+  return new THREE.CanvasTexture(c);
+}
+const ring=new THREE.Mesh(new THREE.RingGeometry(21,58,160),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:true,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,opacity:1}));
+ring.rotation.x=Math.PI/2;
+scene.add(ring);
+
+// ── Mejora: flor de partículas moradas flotando sobre el planeta con anillo ──
+// Mismo principio que el holograma de galaxia-placas-dia-novio (rosa de 5
+// pétalos, r = R·|cos(2.5·θ)|, por rechazo dentro del cuadrado envolvente -
+// da una densidad pareja en vez de amontonarse en el centro), pero aquí es
+// una sola forma fija flotando arriba del anillo, no un morph entre dos
+// formas. Billboard: cada frame mira a la cámara, para que la silueta de
+// flor se lea bien gire la cámara hacia donde gire el usuario.
+// Más grande (R 34->74, más del doble) y más detallada: el doble de densidad
+// de partículas del pétalo (900->2400) más una segunda capa de "destellos"
+// finos por encima (sparkleGeo), más chicos y más brillantes, que le dan
+// una textura de brillo extra que una sola capa pareja no lograba.
+const FLOWER_PARTICLES=2400,FLOWER_R=74;
+const flowerPositions=new Float32Array(FLOWER_PARTICLES*3);
+const flowerColors=new Float32Array(FLOWER_PARTICLES*3);
+const flowerCenterColor=new THREE.Color(0xf5e9ff);
+const flowerPetalColorA=new THREE.Color(0xcdaaff);
+const flowerPetalColorB=new THREE.Color(0x8b4df0);
+function rosaXY(R){
+  if(Math.random()<1/9){
+    const a=Math.random()*Math.PI*2,rr=0.34*R*Math.sqrt(Math.random());
+    return [Math.cos(a)*rr,Math.sin(a)*rr,true];
+  }
+  for(let intento=0;intento<40;intento++){
+    const px=(Math.random()*2-1)*R,py=(Math.random()*2-1)*R;
+    const rad=Math.sqrt(px*px+py*py);
+    if(rad<=R*Math.abs(Math.cos(2.5*Math.atan2(py,px)))) return [px,py,false];
+  }
+  return [0,0,true];
+}
+for(let i=0;i<FLOWER_PARTICLES;i++){
+  const [px,py,esCentro]=rosaXY(FLOWER_R);
+  const rad=Math.sqrt(px*px+py*py)/FLOWER_R;
+  // Cuenco: el centro se adelanta y los pétalos se echan atrás (mismo truco
+  // que galaxia-placas-dia-novio), escalado a la nueva R para que la
+  // profundidad relativa de la flor se vea igual de proporcionada.
+  flowerPositions[i*3]=px;flowerPositions[i*3+1]=py;flowerPositions[i*3+2]=(1-rad)*5.5+(Math.random()-0.5)*4;
+  const col=esCentro?flowerCenterColor:flowerPetalColorA.clone().lerp(flowerPetalColorB,Math.min(1,rad));
+  flowerColors[i*3]=col.r;flowerColors[i*3+1]=col.g;flowerColors[i*3+2]=col.b;
+}
+// Capa de destellos: partículas chicas y muy brillantes, mismo contorno de
+// rosa pero a menor radio (viven encima de los pétalos, no se salen de la
+// silueta), blanco puro - es lo que de lejos se lee como "más detallada".
+const SPARKLE_PARTICLES=700;
+const sparklePositions=new Float32Array(SPARKLE_PARTICLES*3);
+for(let i=0;i<SPARKLE_PARTICLES;i++){
+  const [px,py]=rosaXY(FLOWER_R*0.92);
+  sparklePositions[i*3]=px;sparklePositions[i*3+1]=py;sparklePositions[i*3+2]=6+(Math.random()-0.5)*3;
+}
+function makeDotTexture(size=64){
+  const c=document.createElement('canvas');c.width=c.height=size;
+  const g=c.getContext('2d');
+  const grad=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  grad.addColorStop(0,'rgba(255,255,255,1)');
+  grad.addColorStop(0.4,'rgba(255,255,255,0.7)');
+  grad.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=grad;g.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(c);
+}
+const dotTex=makeDotTexture();
+const flowerGeo=new THREE.BufferGeometry();
+flowerGeo.setAttribute('position',new THREE.BufferAttribute(flowerPositions,3));
+flowerGeo.setAttribute('color',new THREE.BufferAttribute(flowerColors,3));
+const flowerMat=new THREE.PointsMaterial({size:6.4,map:dotTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,vertexColors:true,sizeAttenuation:true});
+const flowerPoints=new THREE.Points(flowerGeo,flowerMat);
+const sparkleGeo=new THREE.BufferGeometry();
+sparkleGeo.setAttribute('position',new THREE.BufferAttribute(sparklePositions,3));
+const sparkleMat=new THREE.PointsMaterial({size:3.2,map:dotTex,color:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true,opacity:0.9});
+const sparklePoints=new THREE.Points(sparkleGeo,sparkleMat);
+const flowerGroup=new THREE.Group();
+flowerGroup.add(flowerPoints);
+flowerGroup.add(sparklePoints);
+flowerGroup.position.set(0,118,0);
+scene.add(flowerGroup);
+// Halo suave detras de la flor, mismo truco que el glow del nucleo, para que
+// no se vea como puntos sueltos flotando sino como una flor que brilla.
+// Escalado junto con la flor (R x2.17), asi el halo sigue proporcionado.
+const flowerHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(512,'216,180,255','139,77,240'),transparent:true,depthWrite:false,opacity:0.55}));
+flowerHalo.scale.set(260,260,1);
+flowerGroup.add(flowerHalo);
+
+// Palabras alrededor: frases del Día de las Flores Amarillas (min 1, se repiten
+// ciclicamente hasta llenar las 150 posiciones que la escena ya reserva,
+// sin importar cuántas haya dejado el cliente - ver schema.json).
+const frasesBase=(Array.isArray(CONFIG.frases)&&CONFIG.frases.length)?CONFIG.frases:DEFAULTS.frases;
+const WORD_SLOTS=150;
+const WORDS=Array.from({length:WORD_SLOTS},(_,i)=>frasesBase[i%frasesBase.length]);
+function makeTextTexture(text,color){
+  const c=document.createElement('canvas');c.width=512;c.height=128;
+  const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#fff';ctx.shadowColor=color;ctx.shadowBlur=30;
+  // Antes el tamaño de fuente era fijo (60px) sin importar el largo de la
+  // frase - una frase larga (con emoji, que ya de por si ocupa bastante
+  // ancho) se salia del lienzo de 512px y quedaba cortada a la mitad. Ahora
+  // el tamaño se reduce hasta que la frase completa entra, con un piso de
+  // 24px para que no se vuelva ilegible.
+  const maxWidth=c.width-48;
+  let fontSize=60;
+  ctx.font=fontSize+"px 'Indie Flower', cursive";
+  while(ctx.measureText(text).width>maxWidth&&fontSize>24){
+    fontSize-=2;
+    ctx.font=fontSize+"px 'Indie Flower', cursive";
+  }
+  ctx.fillText(text,c.width/2,c.height/2);
+  return new THREE.CanvasTexture(c);
+}
+const COLORS=['#b388ff','#c9a4ff','#9b5de5','#a66bff','#e0c3fc','#8b4df0','#d9b8ff','#7c3aed','#be7bff','#cdaaff'];
+const textGroup=new THREE.Group();scene.add(textGroup);
+// Se espera a que 'Indie Flower' termine de cargar antes de dibujar las
+// frases en canvas - a diferencia del texto normal del DOM (el navegador ya
+// resuelve el "parpadeo" de fuente por su cuenta), un canvas dibuja con la
+// fuente que este disponible EN ESE INSTANTE: sin esto, las 150 frases
+// quedaban grabadas para siempre con la tipografia de respaldo (Arial) si
+// la fuente todavia no habia terminado de bajar en el momento exacto en que
+// corria este bucle.
+document.fonts.load("40px 'Indie Flower'").catch(()=>{}).then(()=>{
+  for(let i=0;i<WORDS.length;i++){
+    const tex=makeTextTexture(WORDS[i],COLORS[i%COLORS.length]);
+    const mat=new THREE.SpriteMaterial({map:tex,transparent:true});
+    const sp=new THREE.Sprite(mat);
+    sp.scale.set(78,25,1);
+    const phi=Math.acos(2*Math.random()-1);const theta=Math.random()*Math.PI*2;
+    const r=150+Math.random()*120;
+    sp.position.set(r*Math.sin(phi)*Math.cos(theta),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(theta));
+    sp.userData={phi:phi,theta:theta,radius:r,speed:0.001+Math.random()*0.001};
+    textGroup.add(sp);
+  }
+});
+
+// Fotos del cliente flotando de forma individual (reemplazan a los emojis de
+// la version original). Minimo 1, maximo 3 (plantilla gratuita, ver
+// schema.json) - se reparten ciclicamente (i % cantidad) entre las 26
+// posiciones fijas que la escena ya reserva, igual que antes hacian los
+// emojis, asi que menos fotos simplemente se repiten mas seguido sin que la
+// escena se vea mas vacia.
+const fotosBase=(Array.isArray(CONFIG.fotos)&&CONFIG.fotos.length)?CONFIG.fotos:DEFAULTS.fotos;
+function makePhotoSprite(url,size){
+  const c=document.createElement('canvas');c.width=c.height=256;
+  const tex=new THREE.CanvasTexture(c);
+  const mat=new THREE.SpriteMaterial({map:tex,transparent:true});
+  const sp=new THREE.Sprite(mat);
+  sp.scale.set(size,size,1);
+  const img=new Image();img.crossOrigin='anonymous';
+  img.onload=()=>{
+    const ctx=c.getContext('2d');
+    ctx.clearRect(0,0,c.width,c.height);
+    // La foto se dibuja ESTIRADA a todo el lienzo (cuadrado) y el sprite se
+    // achica abajo a la proporcion real de la foto (aX/aY): las dos deformaciones
+    // se cancelan y queda con su proporcion original. Antes se dibujaba
+    // "contain" (con margenes transparentes) Y ADEMAS se achicaba el sprite: la
+    // proporcion se aplicaba dos veces y una foto de 3.4:1 (un auto de perfil)
+    // salia como una tira de ~11:1 (reporte real 2026-09-23: "muy aplanadas").
+    ctx.drawImage(img,0,0,c.width,c.height);
+    tex.needsUpdate=true;
+    const aspect=img.naturalWidth/img.naturalHeight;
+    const aX=Math.min(1,aspect),aY=Math.min(1,1/aspect);
+    sp.scale.set(size*aX,size*aY,1);
+  };
+  img.onerror=()=>{};
+  img.src=url;
+  return sp;
+}
+// En movil la camara queda mas lejos y las fotos se ven chicas: un poco mas grandes ahi
+// (pedido real 2026-09-23, "todos los modelos de galaxia").
+const FOTO_ESCALA=(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||innerWidth<768)?1.35:1;
+const photoGroup=new THREE.Group();scene.add(photoGroup);
+const PHOTO_COUNT=42;
+for(let i=0;i<PHOTO_COUNT;i++){
+  const url=fotosBase[i%fotosBase.length];
+  const size=(28+Math.random()*20)*FOTO_ESCALA;
+  const sp=makePhotoSprite(url,size);
+  const phi=Math.acos(2*Math.random()-1);const theta=Math.random()*Math.PI*2;
+  const r=140+Math.random()*170;
+  sp.position.set(r*Math.sin(phi)*Math.cos(theta),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(theta));
+  sp.userData={phi:phi,theta:theta,radius:r,speed:0.0006+Math.random()*0.0012};
+  photoGroup.add(sp);
 }
 
-function dibujar() {
+// ================= Controles de cámara — rotación suave, sin trabas =================
+// Mismo patron que galaxia-corazon-de-flores-amarillas: target+amortiguacion (en vez
+// de aplicar el giro directo al frame) para que no tiemble, inercia al soltar (sigue
+// girando y frena solo) y el drag de un dedo se desactiva por completo en cuanto hay
+// un segundo dedo en pantalla - antes los dos gestos (girar y pellizcar) se procesaban
+// a la vez con el mismo evento touchmove y se peleaban entre si, que es lo que se
+// sentia como temblor/trabas al usar dos dedos.
+let isPointerDown=false,isDragging=false,startX=0,startY=0;
+let targetRotX=rotX,targetRotY=rotY,velX=0,velY=0;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const g = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        50,
-        canvas.width / 2,
-        canvas.height / 2,
-        canvas.width / 2
-    );
-
-    g.addColorStop(0, "rgba(180,70,255,.25)");
-    g.addColorStop(.4, "rgba(120,0,255,.10)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "white";
-
-    estrellas.forEach(e => {
-
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        e.y += e.v;
-
-        if (e.y > canvas.height) {
-            e.y = 0;
-            e.x = Math.random() * canvas.width;
-        }
-
-    });
-
-    ctx.font = "20px serif";
-
-    for (let i = 0; i < 15; i++) {
-
-        let x = (Date.now() / 45 + i * 120) % canvas.width;
-        let y = (canvas.height + 80) - ((Date.now() / 18 + i * 90) % (canvas.height + 160));
-
-        ctx.fillStyle = "rgba(220,120,255,.75)";
-        ctx.fillText("💜", x, y);
-
-    }
-
-    if (Math.random() < 0.01) {
-
-        ctx.strokeStyle = "rgba(255,255,255,.7)";
-        ctx.lineWidth = 2;
-
-        let sx = Math.random() * canvas.width;
-        let sy = Math.random() * 200;
-
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.lineTo(sx + 120, sy + 70);
-        ctx.stroke();
-
-    }
-
-    requestAnimationFrame(dibujar);
-
+function onDown(e){
+  isPointerDown=true;isDragging=false;velX=0;velY=0;
+  const t=e.touches?e.touches[0]:e;startX=t.clientX;startY=t.clientY;
 }
+function onMove(e){
+  if(!isPointerDown)return;
+  if(e.touches&&e.touches.length>1)return;
+  const t=e.touches?e.touches[0]:e;
+  const dx=t.clientX-startX,dy=t.clientY-startY;
+  if(Math.abs(dx)>2||Math.abs(dy)>2){
+    isDragging=true;
+    const sensX=(Math.PI*1.5)/innerWidth,sensY=(Math.PI*0.8)/innerHeight;
+    velY=-dx*sensX;velX=dy*sensY;
+    targetRotY+=velY;targetRotX=Math.max(-1.25,Math.min(1.25,targetRotX+velX));
+    startX=t.clientX;startY=t.clientY;
+  }
+}
+function onUp(){isPointerDown=false;}
 
-dibujar();
+const domEl=renderer.domElement;
+domEl.addEventListener('mousedown',onDown);domEl.addEventListener('mousemove',onMove);addEventListener('mouseup',onUp);
+domEl.addEventListener('touchstart',onDown,{passive:true});domEl.addEventListener('touchmove',onMove,{passive:true});
+addEventListener('touchend',(e)=>{
+  if(!e.touches||e.touches.length===0){onUp();}
+  else{const t=e.touches[0];startX=t.clientX;startY=t.clientY;isDragging=false;}
+},{passive:true});
 
-document.getElementById("carta").onclick = function () {
+addEventListener('wheel',(e)=>{targetDist+=e.deltaY*0.25;targetDist=Math.max(160,Math.min(600,targetDist));},{passive:true});
 
-    const carta = document.getElementById("mensajeOculto");
+// Zoom con pellizco en móviles: listeners propios, separados del drag de un dedo.
+let pinchDist=null;
+function getPinchDist(touches){const dx=touches[0].clientX-touches[1].clientX,dy=touches[0].clientY-touches[1].clientY;return Math.hypot(dx,dy);}
+addEventListener('touchstart',(e)=>{
+  if(e.touches.length===2){pinchDist=getPinchDist(e.touches);isPointerDown=false;isDragging=false;}
+},{passive:true});
+addEventListener('touchmove',(e)=>{
+  if(e.touches.length===2){
+    const newDist=getPinchDist(e.touches);
+    if(pinchDist!==null){const delta=pinchDist-newDist;targetDist+=delta*0.85;targetDist=Math.max(160,Math.min(600,targetDist));}
+    pinchDist=newDist;
+  }else if(pinchDist!==null){
+    pinchDist=null;
+    if(e.touches.length===1){startX=e.touches[0].clientX;startY=e.touches[0].clientY;isPointerDown=true;isDragging=false;}
+  }
+},{passive:true});
+addEventListener('touchend',(e)=>{if(e.touches.length<2)pinchDist=null;},{passive:true});
 
-    if (carta.style.display === "block") {
-        carta.style.display = "none";
-    } else {
-        carta.style.display = "block";
-    }
+// Animación
+let t=0;
+function tick(){requestAnimationFrame(tick);t+=0.01;
+  // Flor de particulas: billboard (siempre de frente a la camara) + giro propio
+  // lento sobre su eje (efecto mandala) + respiracion suave de tamaño/brillo.
+  flowerGroup.quaternion.copy(camera.quaternion);
+  flowerPoints.rotation.z+=0.0025;
+  sparklePoints.rotation.z-=0.004;
+  const flowerBreath=1+0.05*Math.sin(t*0.6);
+  flowerGroup.scale.set(flowerBreath,flowerBreath,1);
+  flowerMat.opacity=0.85+0.15*Math.sin(t*1.3);
+  sparkleMat.opacity=0.65+0.35*Math.sin(t*2.4);
+  flowerHalo.material.opacity=0.45+0.15*Math.sin(t*0.6);
+  ring.rotation.z+=0.003;
+  glow.scale.set(GLOW_BASE*(1+Math.sin(t*0.4)*0.03),GLOW_BASE*(1+Math.sin(t*0.4)*0.03),1);
+  const s=1.0+0.05*Math.sin(t*3); // latido
+  core.scale.set(s,s,s);
+  textGroup.children.forEach(sp=>{
+    sp.material.opacity=0.8+0.2*Math.sin(t*2);
+    sp.userData.theta+=sp.userData.speed;
+    sp.position.x=sp.userData.radius*Math.sin(sp.userData.phi)*Math.cos(sp.userData.theta);
+    sp.position.z=sp.userData.radius*Math.sin(sp.userData.phi)*Math.sin(sp.userData.theta);
+  });
+  photoGroup.children.forEach(sp=>{
+    sp.material.opacity=0.85+0.15*Math.sin(t*2+sp.userData.radius);
+    // Sin rotacion propia: a diferencia de un emoji (simetrico, giraba bien
+    // como si fuera un pinwheel), una foto real con forma reconocible se ve
+    // rara/como "estirada" al girar sobre su propio eje en ciertos angulos -
+    // se quita, la foto solo orbita y flota, se queda siempre derecha.
+    sp.userData.theta+=sp.userData.speed;
+    sp.position.x=sp.userData.radius*Math.sin(sp.userData.phi)*Math.cos(sp.userData.theta);
+    sp.position.z=sp.userData.radius*Math.sin(sp.userData.phi)*Math.sin(sp.userData.theta);
+  });
+  // Inercia: sin el dedo/mouse encima, la velocidad sigue empujando el giro y se va
+  // frenando sola (en vez de parar en seco al soltar).
+  if(!isPointerDown){
+    velX*=0.88;velY*=0.88;
+    targetRotX=Math.max(-1.25,Math.min(1.25,targetRotX+velX));targetRotY+=velY;
+  }
+  rotX+=(targetRotX-rotX)*0.12;rotY+=(targetRotY-rotY)*0.12;
+  currentDist+=(targetDist-currentDist)*0.06;
+  const cx=Math.cos(rotX),sx=Math.sin(rotX);const cy=Math.cos(rotY),sy=Math.sin(rotY);
+  camera.position.set(currentDist*sy*cx,currentDist*sx,currentDist*cy*cx);camera.lookAt(0,0,0);
+  renderer.render(scene,camera);
+}
+tick();
 
-};
+// ── Arranque: la musica recien empieza cuando se toca la pantalla ──
+const startScreen=document.getElementById('start-screen');
+function startExperience(){
+  startScreen.classList.add('hidden');
+  setTimeout(()=>startScreen.style.display='none',800);
+  audio.play().catch(()=>{});
+}
+startScreen.addEventListener('click',startExperience);
 </script>
+<style>*{-webkit-user-select:none;user-select:none}img,audio,video{-webkit-user-drag:none;user-drag:none}</style>
+<script>(function(){
+try{
+var allowed="cdn.dedicacodes.com";
+var h=location.hostname;
+if(h!==allowed&&h!=='localhost'&&h!=='127.0.0.1'){
+document.documentElement.innerHTML='<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;background:#fbf3ec;color:#2b1b1e;text-align:center;padding:24px"><div><p style="font-size:1.05rem;margin:0 0 .5rem">Esta dedicatoria solo funciona en su sitio original.</p><p style="font-size:.85rem;opacity:.7;margin:0">Parece que este archivo fue copiado o abierto desde otro lugar.</p></div></body>';
+return;
+}
+}catch(e){}
+try{
+document.addEventListener('contextmenu',function(e){e.preventDefault();});
+document.addEventListener('dragstart',function(e){e.preventDefault();});
+document.addEventListener('keydown',function(e){
+var k=e.key;
+var blocked=k==='F12'
+||(e.ctrlKey&&e.shiftKey&&['I','i','J','j','C','c','K','k'].indexOf(k)!==-1)
+||(e.ctrlKey&&(k==='u'||k==='U'||k==='s'||k==='S'))
+||(e.metaKey&&e.altKey&&['I','i','J','j'].indexOf(k)!==-1);
+if(blocked)e.preventDefault();
+});
+}catch(e){}
+})();</script>
 </body>
-</html>
-    
