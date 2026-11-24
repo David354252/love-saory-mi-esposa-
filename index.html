@@ -1275,38 +1275,29 @@ flowerGroup.add(sparklePoints);
 flowerGroup.position.set(0,118,0);
 scene.add(flowerGroup);
 
-// ===== FLOR GALACTICA ANIMADA GIF =====
-flowerGroup.visible = false;
+// ===== FLOR GALACTICA EN EL UNIVERSO 3D =====
 
-const flowerGif = document.createElement('img');
-flowerGif.src = 'assets/florgalactica011.gif';
-flowerGif.alt = '';
+const flowerGifTexture = new THREE.TextureLoader().load(
+    'assets/florgalactica011.gif'
+);
 
-flowerGif.style.position = 'fixed';
-flowerGif.style.width = '155px';
-flowerGif.style.height = '155px';
-flowerGif.style.objectFit = 'contain';
-flowerGif.style.pointerEvents = 'none';
-flowerGif.style.zIndex = '20';
-flowerGif.style.transform = 'translate(-50%, -50%)';
-flowerGif.style.filter = 'drop-shadow(0 0 12px #a855f7)';
+const flowerGifMaterial = new THREE.SpriteMaterial({
+    map: flowerGifTexture,
+    transparent: true,
+    depthWrite: false
+});
 
-document.body.appendChild(flowerGif);
+const flowerGifSprite = new THREE.Sprite(flowerGifMaterial);
 
-// Posición de la flor sobre el planeta
-function updateFlowerGif() {
-    const position = new THREE.Vector3(0,118,0);
-    position.project(camera);
+// Posición detrás del planeta
+flowerGifSprite.position.set(0, 118, -85);
 
-    const x = (position.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-position.y * 0.5 + 0.5) * window.innerHeight;
+// Tamaño de la flor
+flowerGifSprite.scale.set(85, 85, 1);
 
-    flowerGif.style.left = x + 'px';
-    flowerGif.style.top = y + 'px';
+// Integrar en la galaxia
+scene.add(flowerGifSprite);
 
-    flowerGif.style.display =
-        position.z > -1 && position.z < 1 ? 'block' : 'none';
-}
 
 // Halo suave detras de la flor, mismo truco que el glow del nucleo, para que
 // no se vea como puntos sueltos flotando sino como una flor que brilla.
