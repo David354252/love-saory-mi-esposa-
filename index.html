@@ -552,6 +552,7 @@ flowerPositions3D.forEach(pos => {
 });
 
 scene.add(galaxyFlowerGroup);
+     
 // ===== FLORES ROSAMORADA7 DISPERSAS EN EL UNIVERSO =====
 const newFlowerTexture = new THREE.TextureLoader().load(
     'assets/rosamorada7.png'
@@ -587,10 +588,11 @@ newFlowerPositions.forEach(pos => {
 });
 
 const newFlower = new THREE.Sprite(newFlowerMaterial);
-newFlower.position.set(0, -20, 100);
-newFlower.scale.set(145, 145, 1);
+newFlower.position.set(35, -35, 130);
+newFlower.scale.set(75, 75, 1);
 
 galaxyFlowerGroup.add(newFlower);
+
 // ===== GALAXIA ANDROMEDA MORADA EN 3D =====
 const andromedaGroup = new THREE.Group();
 
@@ -674,6 +676,183 @@ andromedaGroup.rotation.x = 0.35;
 andromedaGroup.scale.set(1.25, 0.65, 1.25);
 
 scene.add(andromedaGroup);
+     
+// ===== CONSTELACIONES MORADAS EN 3D =====
+const constellationGroup = new THREE.Group();
+
+// Estrellas de la constelación principal
+const constellationPoints = [
+    [-190, 75, -125],
+    [-125, 145, -110],
+    [-45, 125, -95],
+    [35, 175, -110],
+    [115, 125, -100],
+    [190, 65, -120],
+    [125, -5, -105],
+    [45, -65, -95],
+    [-45, -35, -110],
+    [-125, -90, -120],
+    [-190, -35, -105],
+    [-70, 55, -90],
+    [65, 45, -100]
+];
+
+// Crear estrellas brillantes
+const starGeometry = new THREE.BufferGeometry();
+const starPositions = [];
+
+const starMaterial = new THREE.PointsMaterial({
+    color: 0xe2c6ff,
+    size: 5,
+    transparent: true,
+    opacity: 1,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+
+const starGlowMaterial = new THREE.PointsMaterial({
+    color: 0x9b5de5,
+    size: 13,
+    transparent: true,
+    opacity: 0.45,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+
+const constellationVertices = [];
+
+const connections = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],
+    [5,6],[6,7],[7,8],[8,9],[9,10],
+    [10,0],[2,11],[11,12],[12,4],[8,11]
+];
+
+const linePositions = [];
+
+connections.forEach(([a,b]) => {
+    linePositions.push(...constellationPoints[a]);
+    linePositions.push(...constellationPoints[b]);
+});
+
+const lineGeometry = new THREE.BufferGeometry();
+lineGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(linePositions, 3)
+);
+
+const constellationLines = new THREE.LineSegments(
+    lineGeometry,
+    new THREE.LineBasicMaterial({
+        color: 0xb388ff,
+        transparent: true,
+        opacity: 0.65
+    })
+);
+
+const positionsArray = [];
+const glowPositions = [];
+
+const mainStarGeometry = new THREE.BufferGeometry();
+
+constellationPoints.forEach(p => {
+    positionsArray.push(...p);
+    glowPositions.push(...p);
+});
+
+mainStarGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(positionsArray, 3)
+);
+
+const mainStars = new THREE.Points(mainStarGeometry, starMaterial);
+const glowGeometry = new THREE.BufferGeometry();
+
+glowGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(glowPositions, 3)
+);
+
+const glowingStars = new THREE.Points(glowGeometry, starGlowMaterial);
+
+const mainConstellation = new THREE.Group();
+mainConstellation.add(constellationLines);
+mainConstellation.add(mainStars);
+mainConstellation.add(glowingStars);
+
+constellationGroup.add(mainConstellation);
+
+// ===== SEGUNDA CONSTELACIÓN GIRATORIA =====
+const rotatingConstellation = new THREE.Group();
+
+const spiralPositions = [];
+const spiralLines = [];
+
+const spiralCount = 12;
+
+for (let i = 0; i < spiralCount; i++) {
+    const angle = i * 0.65;
+    const radius = 35 + i * 9;
+
+    spiralPositions.push(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius,
+        0
+    );
+
+    if (i > 0) {
+        const prev = i - 1;
+        spiralLines.push(
+            Math.cos(prev * 0.65) * (35 + prev * 9),
+            Math.sin(prev * 0.65) * (35 + prev * 9),
+            0,
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            0
+        );
+    }
+}
+
+const spiralGeometry = new THREE.BufferGeometry();
+spiralGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(spiralPositions, 3)
+);
+
+const spiralStars = new THREE.Points(
+    spiralGeometry,
+    new THREE.PointsMaterial({
+        color: 0xe8caff,
+        size: 4.5,
+        transparent: true,
+        opacity: 1,
+        blending: THREE.AdditiveBlending
+    })
+);
+
+const spiralLineGeometry = new THREE.BufferGeometry();
+spiralLineGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(spiralLines, 3)
+);
+
+const spiralLine = new THREE.LineSegments(
+    spiralLineGeometry,
+    new THREE.LineBasicMaterial({
+        color: 0x9b5de5,
+        transparent: true,
+        opacity: 0.65
+    })
+);
+
+rotatingConstellation.add(spiralStars);
+rotatingConstellation.add(spiralLine);
+rotatingConstellation.position.set(230, 35, -100);
+rotatingConstellation.scale.set(1.2, 1.2, 1.2);
+
+constellationGroup.add(rotatingConstellation);
+
+scene.add(constellationGroup);
+
 // El título ahora vive en la cabecera fija (#main-title, ver DEDICA:CONFIG
 // mas arriba) en vez de un sprite 3D en el centro - mas legible y
 // consistente con el resto del catalogo.
@@ -981,6 +1160,9 @@ function tick(){requestAnimationFrame(tick);t+=0.01;
   sparkleMat.opacity=0.65+0.35*Math.sin(t*2.4);
   flowerHalo.material.opacity=0.45+0.15*Math.sin(t*0.6);
   ring.rotation.z+=0.003;
+                // Giro lento de la segunda constelación
+rotatingConstellation.rotation.z += 0.002;
+rotatingConstellation.rotation.y += 0.0008;
   glow.scale.set(GLOW_BASE*(1+Math.sin(t*0.4)*0.03),GLOW_BASE*(1+Math.sin(t*0.4)*0.03),1);
   const s=1.0+0.05*Math.sin(t*3); // latido
   core.scale.set(s,s,s);
@@ -1045,12 +1227,85 @@ function createGalaxyFlowers(){
 }
 
 // ── Arranque: la musica recien empieza cuando se toca la pantalla ──
+     // ===== FLOR DE LOTO ANIMADA 3D =====
+const lotus = document.createElement('img');
+
+lotus.src = 'assets/flordeloto20.gif';
+lotus.alt = '';
+lotus.id = 'lotus-3d';
+
+document.body.appendChild(lotus);
+
+
+const lotusStyle = document.createElement('style');
+
+lotusStyle.textContent = `
+#lotus-3d {
+    position: fixed;
+    width: min(85vw, 520px);
+    height: auto;
+    object-fit: contain;
+    left: 50%;
+    top: 50%;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    perspective: 900px;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 0 25px #b388ff);
+}
+
+#lotus-3d.animate {
+    animation:
+        lotusJourney 5s cubic-bezier(.2,.75,.25,1) forwards,
+        lotusFloat 4s ease-in-out 5s infinite alternate;
+}
+
+@keyframes lotusJourney {
+    0% {
+        opacity: 0;
+        transform: translate(-50%,-50%) translate3d(0,80px,-250px) scale(.05) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    }
+    12% {
+        opacity: 1;
+    }
+    48% {
+        opacity: 1;
+        transform: translate(-50%,-50%) translate3d(0,0,100px) scale(1.45) rotateX(25deg) rotateY(180deg) rotateZ(90deg);
+    }
+    75% {
+        opacity: 1;
+        transform: translate(-50%,-50%) translate3d(28vw,-3vh,40px) scale(.8) rotateX(55deg) rotateY(300deg) rotateZ(220deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%,-50%) translate3d(30vw,0,0) scale(.55) rotateX(45deg) rotateY(360deg) rotateZ(360deg);
+    }
+}
+
+@keyframes lotusFloat {
+    from {
+        transform: translate(-50%,-50%) translate3d(30vw,-8px,0) scale(.55) rotateX(45deg) rotateY(360deg) rotateZ(360deg);
+    }
+    to {
+        transform: translate(-50%,-50%) translate3d(30vw,8px,0) scale(.55) rotateX(55deg) rotateY(380deg) rotateZ(370deg);
+    }
+}
+`;
+
+document.head.appendChild(lotusStyle);
+
+let lotusStarted = false;
 const startScreen=document.getElementById('start-screen');
 function startExperience(){
   startScreen.classList.add('hidden');
   setTimeout(()=>startScreen.style.display='none',800);
 
   createGalaxyFlowers();
+     if (!lotusStarted) {
+    lotusStarted = true;
+    lotus.classList.add('animate');
+}
 
   audio.play().catch(()=>{});
 }
