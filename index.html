@@ -552,7 +552,7 @@ flowerPositions3D.forEach(pos => {
 });
 
 scene.add(galaxyFlowerGroup);
-     // ===== NUEVA FLOR ROSA MORADA =====
+// ===== FLORES ROSAMORADA7 DISPERSAS EN EL UNIVERSO =====
 const newFlowerTexture = new THREE.TextureLoader().load(
     'assets/rosamorada7.png'
 );
@@ -560,8 +560,30 @@ const newFlowerTexture = new THREE.TextureLoader().load(
 const newFlowerMaterial = new THREE.SpriteMaterial({
     map: newFlowerTexture,
     transparent: true,
-    opacity: 1,
+    opacity: 0.95,
     depthWrite: false
+});
+
+const newFlowerPositions = [
+    {x:-145, y:65, z:-90, size:65},
+    {x:145, y:85, z:-100, size:75},
+    {x:-165, y:-45, z:-30, size:60},
+    {x:165, y:-65, z:-40, size:70},
+    {x:-105, y:125, z:45, size:65},
+    {x:110, y:135, z:55, size:75},
+    {x:-185, y:20, z:100, size:55},
+    {x:185, y:35, z:110, size:60},
+    {x:0, y:-130, z:80, size:70},
+    {x:0, y:165, z:-120, size:65}
+];
+
+newFlowerPositions.forEach(pos => {
+    const flower = new THREE.Sprite(newFlowerMaterial);
+
+    flower.position.set(pos.x, pos.y, pos.z);
+    flower.scale.set(pos.size, pos.size, 1);
+
+    galaxyFlowerGroup.add(flower);
 });
 
 const newFlower = new THREE.Sprite(newFlowerMaterial);
