@@ -868,8 +868,9 @@ const spiralLine = new THREE.LineSegments(
 rotatingConstellation.add(spiralStars);
 rotatingConstellation.add(spiralLine);
 
-// Centrada sobre el planeta
-rotatingConstellation.position.set(0, 0, 35);
+// Órbita gigante centrada sobre el planeta
+rotatingConstellation.position.set(0, 0, 0);
+rotatingConstellation.scale.set(5.2, 5.2, 5.2);
 
 // Mucho más grande
 rotatingConstellation.scale.set(3.8, 3.8, 3.8);
